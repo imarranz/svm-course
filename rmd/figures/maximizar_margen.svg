@@ -1,0 +1,734 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="maximizar_margen.svg">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3773"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible">
+      <path
+         id="path3770"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt"
+         transform="scale(0.8) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lstart-3"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3770-7"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(0.8,0,0,0.8,10,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow1Lend-6"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path3773-7"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 z"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         transform="matrix(-0.8,0,0,-0.8,-10,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.7329716"
+     inkscape:cx="360.86215"
+     inkscape:cy="681.69837"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="true"
+     inkscape:guide-bbox="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1028"
+     inkscape:window-x="-2"
+     inkscape:window-y="-3"
+     inkscape:window-maximized="1">
+    <sodipodi:guide
+       orientation="0,1"
+       position="331.80002,546.46021"
+       id="guide5073" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#808080;stroke:#808080;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       d="M 431.23756,394.24228 521.01131,499.4459"
+       id="path4560-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:#808080;stroke:#808080;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       d="m 403.27602,406.66988 79.95475,93.28054"
+       id="path4560-3-3"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:#999999;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4980-3"
+       sodipodi:cx="573.35974"
+       sodipodi:cy="354.86218"
+       sodipodi:rx="9.4683256"
+       sodipodi:ry="9.4683256"
+       d="m 582.82807,354.86218 a 9.4683256,9.4683256 0 1 1 -18.93665,0 9.4683256,9.4683256 0 1 1 18.93665,0 z"
+       transform="matrix(0.81450625,0,0,0.81450625,-28.05259,169.02835)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:#999999;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4980-5"
+       sodipodi:cx="573.35974"
+       sodipodi:cy="354.86218"
+       sodipodi:rx="9.4683256"
+       sodipodi:ry="9.4683256"
+       d="m 582.82807,354.86218 a 9.4683256,9.4683256 0 1 1 -18.93665,0 9.4683256,9.4683256 0 1 1 18.93665,0 z"
+       transform="matrix(0.81450625,0,0,0.81450625,14.028843,164.11885)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#999999;fill-opacity:1;fill-rule:evenodd;stroke:#999999;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4980"
+       sodipodi:cx="573.35974"
+       sodipodi:cy="354.86218"
+       sodipodi:rx="9.4683256"
+       sodipodi:ry="9.4683256"
+       d="m 582.82807,354.86218 a 9.4683256,9.4683256 0 1 1 -18.93665,0 9.4683256,9.4683256 0 1 1 18.93665,0 z"
+       transform="matrix(0.81450625,0,0,0.81450625,-8.725025,133.85436)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:url(#Arrow1Lstart);marker-end:url(#Arrow1Lend);stroke-miterlimit:4;stroke-dasharray:none"
+       d="m 56.108597,390.28073 0,115.72398 153.597283,0"
+       id="path2996"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <g
+       id="g4540"
+       transform="translate(-42.782805,263.71041)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144">
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396"
+         y="164.44363"
+         x="153.59729"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="164.44363"
+           x="153.59729"
+           id="tspan4398"
+           sodipodi:role="line">+</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396-9"
+         y="194.70813"
+         x="176.35118"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="194.70813"
+           x="176.35118"
+           id="tspan4398-4"
+           sodipodi:role="line">+</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396-7"
+         y="167.35518"
+         x="186.87154"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="167.35518"
+           x="186.87154"
+           id="tspan4398-6"
+           sodipodi:role="line">+</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396-6"
+         y="169.45926"
+         x="212.12041"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="169.45926"
+           x="212.12041"
+           id="tspan4398-61"
+           sodipodi:role="line">+</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396-8"
+         y="186.29184"
+         x="203.00276"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="186.29184"
+           x="203.00276"
+           id="tspan4398-9"
+           sodipodi:role="line">+</tspan></text>
+      <text
+         sodipodi:linespacing="125%"
+         id="text4396-5"
+         y="198.91628"
+         x="224.04349"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+         xml:space="preserve"><tspan
+           style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold"
+           y="198.91628"
+           x="224.04349"
+           id="tspan4398-0"
+           sodipodi:role="line">+</tspan></text>
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,122.51259,151.80389)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,145.30671,159.16815)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481-7"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,133.38363,167.58444)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481-77"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,120.7592,181.61159)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481-6"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,138.99449,185.81973)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481-4"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+      <path
+         transform="matrix(0.44137432,0,0,0.44137432,155.82707,190.02788)"
+         d="m -1.4027147,80.280731 c 0,4.648188 -3.7681011,8.41629 -8.4162894,8.41629 -4.6481879,0 -8.4162889,-3.768102 -8.4162889,-8.41629 0,-4.648188 3.768101,-8.416289 8.4162889,-8.416289 4.6481883,0 8.4162894,3.768101 8.4162894,8.416289 z"
+         sodipodi:ry="8.4162893"
+         sodipodi:rx="8.4162893"
+         sodipodi:cy="80.280731"
+         sodipodi:cx="-9.8190041"
+         id="path4481-0"
+         style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+         sodipodi:type="arc" />
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:4.5,4.5;stroke-dashoffset:0"
+       d="M 68.733032,426.04997 194.97738,490.57485"
+       id="path4560"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:4.5, 4.5;stroke-dashoffset:0"
+       d="m 99.592757,409.91875 21.040723,91.87782"
+       id="path4560-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:4.5, 4.5;stroke-dashoffset:0"
+       d="m 71.538459,412.72417 71.538471,87.66968"
+       id="path4560-1"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow1Lstart);marker-end:url(#Arrow1Lend)"
+       d="m 396.87104,390.03413 0,115.72398 153.59728,0"
+       id="path2996-1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="484.85117"
+       y="430.819"
+       id="text4396-7-6"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-6-2"
+         x="484.85117"
+         y="430.819"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="510.10004"
+       y="432.92307"
+       id="text4396-6-5"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-61-6"
+         x="510.10004"
+         y="432.92307"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="500.98239"
+       y="449.75565"
+       id="text4396-8-0"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-9-3"
+         x="500.98239"
+         y="449.75565"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="522.02313"
+       y="462.3801"
+       id="text4396-5-2"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-0-3"
+         x="522.02313"
+         y="462.3801"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-2"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,420.49223,415.2677)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-7-4"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,443.28635,422.63196)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-77-8"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,431.36327,431.04825)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-6-4"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,418.73884,445.0754)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-4-1"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,436.97413,449.28354)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       sodipodi:type="arc"
+       style="fill:none;stroke:#800000;stroke-width:4.53130102;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0"
+       id="path4481-0-5"
+       sodipodi:cx="-9.8190041"
+       sodipodi:cy="80.280731"
+       sodipodi:rx="8.4162893"
+       sodipodi:ry="8.4162893"
+       d="m -1.4027147,80.280731 a 8.4162893,8.4162893 0 1 1 -16.8325783,0 8.4162893,8.4162893 0 1 1 16.8325783,0 z"
+       transform="matrix(0.44137432,0,0,0.44137432,453.80671,453.49169)"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:4.5, 4.5;stroke-dashoffset:0"
+       d="m 414.15837,397.99567 89.77375,105.20362"
+       id="path4560-3-5"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="506.03619"
+       y="381.86444"
+       id="text4708"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4710"
+         x="506.03619"
+         y="381.86444"
+         style="font-size:10px">Vectores soporte</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="613.27991"
+       y="476.5477"
+       id="text4712"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4714"
+         x="613.27991"
+         y="476.5477"
+         style="font-size:10px;text-align:center;text-anchor:middle">hiperplano</tspan><tspan
+         sodipodi:role="line"
+         x="613.27991"
+         y="491.5477"
+         style="font-size:10px;text-align:center;text-anchor:middle"
+         id="tspan4716">positivo</tspan><tspan
+         sodipodi:role="line"
+         x="613.27991"
+         y="506.5477"
+         style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;-inkscape-font-specification:Sans Bold"
+         id="tspan4718">w<tspan
+   style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;baseline-shift:super;-inkscape-font-specification:Sans Bold"
+   id="tspan4720">T</tspan>x = 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="350.11511"
+       y="475.22394"
+       id="text4712-2"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4714-9"
+         x="350.11511"
+         y="475.22394"
+         style="font-size:10px;text-align:center;text-anchor:middle">hiperplano</tspan><tspan
+         sodipodi:role="line"
+         x="350.11511"
+         y="490.22394"
+         style="font-size:10px;text-align:center;text-anchor:middle"
+         id="tspan4716-4">negativo</tspan><tspan
+         sodipodi:role="line"
+         x="350.11511"
+         y="505.22394"
+         style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;-inkscape-font-specification:Sans Bold"
+         id="tspan4718-9">w<tspan
+   style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;baseline-shift:super;-inkscape-font-specification:Sans Bold"
+   id="tspan4720-6">T</tspan>x = -1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="324.72522"
+       y="415.3136"
+       id="text4712-2-7"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         x="324.72522"
+         y="415.3136"
+         style="font-size:10px;text-align:center;text-anchor:middle"
+         id="tspan4716-4-2">frontera de</tspan><tspan
+         sodipodi:role="line"
+         x="324.72522"
+         y="430.3136"
+         style="font-size:10px;text-align:center;text-anchor:middle"
+         id="tspan4784">la decisión</tspan><tspan
+         sodipodi:role="line"
+         x="324.72522"
+         y="445.3136"
+         style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;-inkscape-font-specification:Sans Bold"
+         id="tspan4718-9-2">w<tspan
+   style="font-size:10px;font-weight:bold;text-align:center;text-anchor:middle;baseline-shift:super;-inkscape-font-specification:Sans Bold"
+   id="tspan4720-6-2">T</tspan>x = 0</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend-6)"
+       d="M 420.85973,428.43911 462.94118,395.4753"
+       id="path4786"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="461.14932"
+       y="386.07257"
+       id="text4976"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4978"
+         x="461.14932"
+         y="386.07257"
+         style="font-size:14px;font-weight:bold;-inkscape-font-specification:Sans Bold">w</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="451.57693"
+       y="427.90744"
+       id="text4396-55"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-1"
+         x="451.57693"
+         y="427.90744"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="474.33081"
+       y="458.17194"
+       id="text4396-9-3"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan4398-4-9"
+         x="474.33081"
+         y="458.17194"
+         style="font-size:16px;font-weight:bold;fill:#008000;-inkscape-font-specification:Sans Bold">+</tspan></text>
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 554.52107,384.61998 -91.8294,36.01929"
+       id="path5025"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 554.19773,384.87782 444.95241,454.5415"
+       id="path5025-0"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 554.358,384.59768 -70.29225,64.73828"
+       id="path5025-9"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 576.19579,487.45116 499.2048,471.53602"
+       id="path5025-06"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 413.17731,420.74052 -27.9103,60.33447"
+       id="path5025-2"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <path
+       style="fill:none;stroke:#999999;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 420.84289,408.26032 -54.32158,17.5539"
+       id="path5025-4"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144" />
+    <text
+       xml:space="preserve"
+       style="font-size:32.78759766px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="69.250137"
+       y="356.36612"
+       id="text5075"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         id="tspan5077"
+         x="69.250137"
+         y="356.36612"
+         style="font-size:13.11503887px">¿Qué hiperplano?</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:32.78759766px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="471.32516"
+       y="356.36612"
+       id="text5075-1"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/ibon/Escritorio/svm/imágenes/maximizar_margen.png"
+       inkscape:export-xdpi="144"
+       inkscape:export-ydpi="144"><tspan
+         sodipodi:role="line"
+         x="471.32516"
+         y="356.36612"
+         style="font-size:13.11503887px;text-align:center;text-anchor:middle"
+         id="tspan5100">SVM: Maximizan el margen</tspan></text>
+  </g>
+</svg>

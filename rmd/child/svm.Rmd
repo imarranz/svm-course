@@ -1,0 +1,99 @@
+### Support Vector Machine
+
+Las máquinas de soporte vectorial o máquinas de vectores de soporte (Support Vector Machines, SVMs) son un conjunto de algoritmos de aprendizaje supervisado.
+
+Estos métodos están propiamente relacionados con problemas de clasificación y regresión. Dado un conjunto de ejemplos de entrenamiento (de muestras) podemos etiquetar las clases y entrenar una SVM para construir un modelo que prediga la clase de una nueva muestra. Intuitivamente, una SVM es un modelo que representa a los puntos de muestra en el espacio, separando las clases por un espacio lo más amplio posible. Cuando las nuevas muestras se ponen en correspondencia con dicho modelo, en función de su proximidad pueden ser clasificadas a una u otra clase.
+
+Más formalmente, una SVM construye un hiperplano o conjunto de hiperplanos en un espacio de dimensionalidad muy alta (o incluso infinita) que puede ser utilizado en problemas de clasificación o regresión. Una buena separación entre las clases permitirá un clasificación correcta.
+
+### Idea básica
+
+Dado un conjunto de puntos, subconjunto de un conjunto mayor (espacio), en el que cada uno de ellos pertenece a una de dos posibles categorías, un algoritmo basado en SVM construye un modelo capaz de predecir si un punto nuevo (cuya categoría desconocemos) pertenece a una categoría o a la otra. Como en la mayoría de los métodos de clasificación supervisada, los datos de entrada (los puntos) son vistos como un vector p-dimensional (una lista de p números).
+
+La SVM busca un hiperplano que separe de forma óptima a los puntos de una clase de la de otra, que eventualmente han podido ser previamente proyectados a un espacio de dimensionalidad superior.
+
+En ese concepto de *separación óptima* es donde reside la característica fundamental de las SVM: este tipo de algoritmos buscan el hiperplano que tenga la máxima distancia (margen) con los puntos que estén más cerca de él mismo. Por eso también a veces se les conoce a las SVM como clasificadores de margen máximo. De esta forma, los puntos del vector que son etiquetados con una categoría estarán a un lado del hiperplano y los casos que se encuentren en la otra categoría estarán al otro lado.
+
+En la literatura de los SVMs, se llama **atributo** a la variable predictora y característica a un atributo transformado que es usado para definir el hiperplano. La elección de la representación más adecuada del universo estudiado, se realiza mediante un proceso denominado selección de características. Al vector formado por los puntos más cercanos al hiperplano se le llama **vector de soporte**.
+
+Los modelos basados en SVMs están estrechamente relacionados con las redes neuronales. Usando una función kernel, resultan un método de entrenamiento alternativo para clasificadores polinomiales, funciones de base radial y perceptrón multicapa.
+
+### Función *kernel*
+
+La manera más simple de realizar la separación es mediante una línea recta, un plano recto o un hiperplano N-dimensional.
+
+Desafortunadamente los fenómenos a estudiar no se suelen presentar en casos fáciles de dos dimensiones como en el ejemplo anterior, sino que un algoritmo SVM debe tratar con:
+
+* Más de dos variables predictoras.
+* Curvas no lineales de separación.
+* Casos donde los conjuntos de datos no pueden ser completamente separados.
+* Clasificaciones en más de dos categorías.
+
+\begin{figure}
+\centering
+\includegraphics[]{./figures/datamining/svm.pdf}
+\caption{Ejemplo simplificado de la aplicación de las funciones kernel en la creación de un nuevo espacio de caraterísticas donde es más fácil la separación entre clases.}
+\label{fig:svm_explained}
+\end{figure}
+
+Debido a las limitaciones computacionales de las máquinas de aprendizaje lineal, éstas no pueden ser utilizadas en la mayoría de las aplicaciones del mundo real. La representación por medio de funciones Kernel ofrece una solución a este problema, proyectando la información a un espacio de características de mayor dimensión el cual aumenta la capacidad computacional de la máquinas de aprendizaje lineal. Es decir, se construye el espacio de entradas $X$ a un nuevo espacio de características de mayor dimensionalidad. La ídea geométrica de la aplicación de funciones kernel puede verse en la figura \ref{fig:svm_explained}, donde la aplicación de una función kernel nos facilita la separación de las clases aunque aumentemos la dimensión del problema.
+
+Hay varios tipos de funciones kernel (implementadas en R):
+
+lineal:
+
+$$K(u,v) = u^{T}\cdot v$$
+
+Polinomial:
+
+$$K(u,v) = (\gamma\cdot u^{T}\cdot v + coef_0)^{degree}$$
+
+Función de base radial gaussiana:
+
+$$K(u,v) = exp^{(-\gamma\cdot ||u-v||^2)}$$
+
+Sigmoide:
+
+$$K(u,v) = tanh(\gamma\cdot u^{T}\cdot v + coef_0)$$
+
+Las Máquinas de Vector Soporte son capaces de reconocer diferentes patrones, desde separaciones lineales relativamente sencillas a otras separaciones no tan triviales. En el siguiente ejemplo construimos dos conjuntos de puntos en el plano que forman dos curvas que no se llegan a tocar. La separación de ambos conjuntos no es lineal.
+
+
+```{r, echo = TRUE}
+set.seed(123)
+
+x1 <- runif(1000, min = 0, max = pi)
+y1 <- sin(x1) + rnorm(1000, sd = 0.2)
+
+x2 <- runif(1000, min = pi, max = 2*pi)
+y2 <- sin(x2)
+x2 <- x2 - pi/2
+y2 <- y2 + 0.5 + rnorm(1000, sd = 0.2)
+
+ESVM <- cbind(x1 = c(x1, x2), 
+              x2 = c(y1, y2), 
+              y = rep(c(1,-1), each = 1000))
+ESVM <- as.data.frame(ESVM)
+```
+
+Construimos un modelo mediante la función `ksvm` del paquete `kernlab` con los datos generados. Utilizamos una función de base radial (`rbfdot`) y especificamos que estamos construyendo un modelo de clasificación.
+
+
+```{r, echo = TRUE}
+modelo <- ksvm(y ~ ., 
+               data = ESVM[, c(2,1,3)], 
+               kernel = "rbfdot", 
+               type = "C-svc", 
+               kpar = list(sigma = 0.097), 
+               C = 9.74)
+```
+
+En la figura \ref{fig:ejemplo_svm} se muestra la clasificación que realiza el modelo SVM con base radial. Observamos que realiza una muy buena separación. Los puntos y los triángulos son las observaciones que pertenence a una u otra categoría. Los puntos resaltados en negro, son las observaciones que utiliza el modelo como soportes.
+
+```{r label = 'ejemplo_svm', echo = FALSE, fig.align = 'center', fig.width = 7, fig.height = 7, fig.cap = 'Gráfico de la clasificación binaria del modelo SVM clasificación y vectores soporte del modelo.', fig.lp = 'fig:'}
+plot(modelo, data = ESVM[, 1:2], grid = 50)
+```
+
+
+
+

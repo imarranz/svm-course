@@ -1,0 +1,257 @@
+# ImageMagick pixel enumeration: 16,16,255,srgb
+0,0: (255,255,255)  #FFFFFF  white
+1,0: (255,255,255)  #FFFFFF  white
+2,0: (255,255,255)  #FFFFFF  white
+3,0: (255,255,255)  #FFFFFF  white
+4,0: (255,255,255)  #FFFFFF  white
+5,0: (255,255,255)  #FFFFFF  white
+6,0: (255,255,255)  #FFFFFF  white
+7,0: (255,255,255)  #FFFFFF  white
+8,0: (255,255,255)  #FFFFFF  white
+9,0: (255,255,255)  #FFFFFF  white
+10,0: (255,255,255)  #FFFFFF  white
+11,0: (255,255,255)  #FFFFFF  white
+12,0: (255,255,255)  #FFFFFF  white
+13,0: (255,255,255)  #FFFFFF  white
+14,0: (255,255,255)  #FFFFFF  white
+15,0: (255,255,255)  #FFFFFF  white
+0,1: (255,255,255)  #FFFFFF  white
+1,1: (255,255,255)  #FFFFFF  white
+2,1: (255,255,255)  #FFFFFF  white
+3,1: (255,255,255)  #FFFFFF  white
+4,1: (255,255,255)  #FFFFFF  white
+5,1: (255,255,255)  #FFFFFF  white
+6,1: (255,253,241)  #FFFDF1  srgb(255,253,241)
+7,1: (206,147, 81)  #CE9351  srgb(206,147,81)
+8,1: ( 25,  0,  0)  #190000  srgb(25,0,0)
+9,1: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,1: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,1: (255,255,255)  #FFFFFF  white
+12,1: (255,255,255)  #FFFFFF  white
+13,1: (255,255,255)  #FFFFFF  white
+14,1: (255,255,255)  #FFFFFF  white
+15,1: (255,255,255)  #FFFFFF  white
+0,2: (255,255,255)  #FFFFFF  white
+1,2: (255,255,255)  #FFFFFF  white
+2,2: (255,255,255)  #FFFFFF  white
+3,2: (255,255,255)  #FFFFFF  white
+4,2: (255,255,255)  #FFFFFF  white
+5,2: (254,246,217)  #FEF6D9  srgb(254,246,217)
+6,2: (162, 96, 36)  #A26024  srgb(162,96,36)
+7,2: (  0,  0,  0)  #000000  black
+8,2: (  0,  0,  0)  #000000  black
+9,2: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,2: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,2: (255,255,255)  #FFFFFF  white
+12,2: (255,255,255)  #FFFFFF  white
+13,2: (255,255,255)  #FFFFFF  white
+14,2: (255,255,255)  #FFFFFF  white
+15,2: (255,255,255)  #FFFFFF  white
+0,3: (255,255,255)  #FFFFFF  white
+1,3: (255,255,255)  #FFFFFF  white
+2,3: (255,255,255)  #FFFFFF  white
+3,3: (255,255,255)  #FFFFFF  white
+4,3: (252,231,182)  #FCE7B6  srgb(252,231,182)
+5,3: (114, 49,  6)  #723106  srgb(114,49,6)
+6,3: (  0,  0, 17)  #000011  srgb(0,0,17)
+7,3: ( 72,132,142)  #48848E  srgb(72,132,142)
+8,3: ( 74, 12,  0)  #4A0C00  srgb(74,12,0)
+9,3: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,3: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,3: (255,255,255)  #FFFFFF  white
+12,3: (255,255,255)  #FFFFFF  white
+13,3: (255,255,255)  #FFFFFF  white
+14,3: (255,255,255)  #FFFFFF  white
+15,3: (255,255,255)  #FFFFFF  white
+0,4: (255,255,255)  #FFFFFF  white
+1,4: (255,255,255)  #FFFFFF  white
+2,4: (255,255,255)  #FFFFFF  white
+3,4: (255,255,255)  #FFFFFF  white
+4,4: (254,241,197)  #FEF1C5  srgb(254,241,197)
+5,4: (119, 56, 57)  #773839  srgb(119,56,57)
+6,4: (110,176,227)  #6EB0E3  srgb(110,176,227)
+7,4: (249,241,183)  #F9F1B7  srgb(249,241,183)
+8,4: ( 76,  7,  0)  #4C0700  srgb(76,7,0)
+9,4: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,4: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,4: (255,255,255)  #FFFFFF  white
+12,4: (255,255,255)  #FFFFFF  white
+13,4: (255,255,255)  #FFFFFF  white
+14,4: (255,255,255)  #FFFFFF  white
+15,4: (255,255,255)  #FFFFFF  white
+0,5: (255,255,255)  #FFFFFF  white
+1,5: (255,255,255)  #FFFFFF  white
+2,5: (255,255,255)  #FFFFFF  white
+3,5: (255,255,255)  #FFFFFF  white
+4,5: (255,255,255)  #FFFFFF  white
+5,5: (255,255,255)  #FFFFFF  white
+6,5: (255,255,255)  #FFFFFF  white
+7,5: (255,240,180)  #FFF0B4  srgb(255,240,180)
+8,5: ( 71,  4,  0)  #470400  srgb(71,4,0)
+9,5: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,5: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,5: (255,255,255)  #FFFFFF  white
+12,5: (255,255,255)  #FFFFFF  white
+13,5: (255,255,255)  #FFFFFF  white
+14,5: (255,255,255)  #FFFFFF  white
+15,5: (255,255,255)  #FFFFFF  white
+0,6: (255,255,255)  #FFFFFF  white
+1,6: (255,255,255)  #FFFFFF  white
+2,6: (255,255,255)  #FFFFFF  white
+3,6: (255,255,255)  #FFFFFF  white
+4,6: (255,255,255)  #FFFFFF  white
+5,6: (255,255,255)  #FFFFFF  white
+6,6: (255,255,255)  #FFFFFF  white
+7,6: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,6: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,6: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,6: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,6: (255,255,255)  #FFFFFF  white
+12,6: (255,255,255)  #FFFFFF  white
+13,6: (255,255,255)  #FFFFFF  white
+14,6: (255,255,255)  #FFFFFF  white
+15,6: (255,255,255)  #FFFFFF  white
+0,7: (255,255,255)  #FFFFFF  white
+1,7: (255,255,255)  #FFFFFF  white
+2,7: (255,255,255)  #FFFFFF  white
+3,7: (255,255,255)  #FFFFFF  white
+4,7: (255,255,255)  #FFFFFF  white
+5,7: (255,255,255)  #FFFFFF  white
+6,7: (255,255,255)  #FFFFFF  white
+7,7: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,7: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,7: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,7: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,7: (255,255,255)  #FFFFFF  white
+12,7: (255,255,255)  #FFFFFF  white
+13,7: (255,255,255)  #FFFFFF  white
+14,7: (255,255,255)  #FFFFFF  white
+15,7: (255,255,255)  #FFFFFF  white
+0,8: (255,255,255)  #FFFFFF  white
+1,8: (255,255,255)  #FFFFFF  white
+2,8: (255,255,255)  #FFFFFF  white
+3,8: (255,255,255)  #FFFFFF  white
+4,8: (255,255,255)  #FFFFFF  white
+5,8: (255,255,255)  #FFFFFF  white
+6,8: (255,255,255)  #FFFFFF  white
+7,8: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,8: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,8: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,8: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,8: (255,255,255)  #FFFFFF  white
+12,8: (255,255,255)  #FFFFFF  white
+13,8: (255,255,255)  #FFFFFF  white
+14,8: (255,255,255)  #FFFFFF  white
+15,8: (255,255,255)  #FFFFFF  white
+0,9: (255,255,255)  #FFFFFF  white
+1,9: (255,255,255)  #FFFFFF  white
+2,9: (255,255,255)  #FFFFFF  white
+3,9: (255,255,255)  #FFFFFF  white
+4,9: (255,255,255)  #FFFFFF  white
+5,9: (255,255,255)  #FFFFFF  white
+6,9: (255,255,255)  #FFFFFF  white
+7,9: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,9: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,9: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,9: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,9: (255,255,255)  #FFFFFF  white
+12,9: (255,255,255)  #FFFFFF  white
+13,9: (255,255,255)  #FFFFFF  white
+14,9: (255,255,255)  #FFFFFF  white
+15,9: (255,255,255)  #FFFFFF  white
+0,10: (255,255,255)  #FFFFFF  white
+1,10: (255,255,255)  #FFFFFF  white
+2,10: (255,255,255)  #FFFFFF  white
+3,10: (255,255,255)  #FFFFFF  white
+4,10: (255,255,255)  #FFFFFF  white
+5,10: (255,255,255)  #FFFFFF  white
+6,10: (255,255,255)  #FFFFFF  white
+7,10: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,10: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,10: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,10: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,10: (255,255,255)  #FFFFFF  white
+12,10: (255,255,255)  #FFFFFF  white
+13,10: (255,255,255)  #FFFFFF  white
+14,10: (255,255,255)  #FFFFFF  white
+15,10: (255,255,255)  #FFFFFF  white
+0,11: (255,255,255)  #FFFFFF  white
+1,11: (255,255,255)  #FFFFFF  white
+2,11: (255,255,255)  #FFFFFF  white
+3,11: (255,255,255)  #FFFFFF  white
+4,11: (255,255,255)  #FFFFFF  white
+5,11: (255,255,255)  #FFFFFF  white
+6,11: (255,255,255)  #FFFFFF  white
+7,11: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,11: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,11: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,11: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,11: (255,255,255)  #FFFFFF  white
+12,11: (255,255,255)  #FFFFFF  white
+13,11: (255,255,255)  #FFFFFF  white
+14,11: (255,255,255)  #FFFFFF  white
+15,11: (255,255,255)  #FFFFFF  white
+0,12: (255,255,255)  #FFFFFF  white
+1,12: (255,255,255)  #FFFFFF  white
+2,12: (255,255,255)  #FFFFFF  white
+3,12: (255,255,255)  #FFFFFF  white
+4,12: (255,255,255)  #FFFFFF  white
+5,12: (255,255,255)  #FFFFFF  white
+6,12: (255,255,255)  #FFFFFF  white
+7,12: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,12: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,12: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,12: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,12: (255,255,255)  #FFFFFF  white
+12,12: (255,255,255)  #FFFFFF  white
+13,12: (255,255,255)  #FFFFFF  white
+14,12: (255,255,255)  #FFFFFF  white
+15,12: (255,255,255)  #FFFFFF  white
+0,13: (255,255,255)  #FFFFFF  white
+1,13: (255,255,255)  #FFFFFF  white
+2,13: (255,255,255)  #FFFFFF  white
+3,13: (255,255,255)  #FFFFFF  white
+4,13: (255,255,255)  #FFFFFF  white
+5,13: (255,255,255)  #FFFFFF  white
+6,13: (255,255,255)  #FFFFFF  white
+7,13: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,13: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,13: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,13: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,13: (255,255,255)  #FFFFFF  white
+12,13: (255,255,255)  #FFFFFF  white
+13,13: (255,255,255)  #FFFFFF  white
+14,13: (255,255,255)  #FFFFFF  white
+15,13: (255,255,255)  #FFFFFF  white
+0,14: (255,255,255)  #FFFFFF  white
+1,14: (255,255,255)  #FFFFFF  white
+2,14: (255,255,255)  #FFFFFF  white
+3,14: (255,255,255)  #FFFFFF  white
+4,14: (255,255,255)  #FFFFFF  white
+5,14: (255,255,255)  #FFFFFF  white
+6,14: (255,255,255)  #FFFFFF  white
+7,14: (255,240,179)  #FFF0B3  srgb(255,240,179)
+8,14: ( 69,  3,  0)  #450300  srgb(69,3,0)
+9,14: (  0, 63,174)  #003FAE  srgb(0,63,174)
+10,14: (239,255,255)  #EFFFFF  srgb(239,255,255)
+11,14: (255,255,255)  #FFFFFF  white
+12,14: (255,255,255)  #FFFFFF  white
+13,14: (255,255,255)  #FFFFFF  white
+14,14: (255,255,255)  #FFFFFF  white
+15,14: (255,255,255)  #FFFFFF  white
+0,15: (255,255,255)  #FFFFFF  white
+1,15: (255,255,255)  #FFFFFF  white
+2,15: (255,255,255)  #FFFFFF  white
+3,15: (255,255,255)  #FFFFFF  white
+4,15: (255,255,255)  #FFFFFF  white
+5,15: (255,255,255)  #FFFFFF  white
+6,15: (255,255,255)  #FFFFFF  white
+7,15: (255,255,255)  #FFFFFF  white
+8,15: (255,255,255)  #FFFFFF  white
+9,15: (255,255,255)  #FFFFFF  white
+10,15: (255,255,255)  #FFFFFF  white
+11,15: (255,255,255)  #FFFFFF  white
+12,15: (255,255,255)  #FFFFFF  white
+13,15: (255,255,255)  #FFFFFF  white
+14,15: (255,255,255)  #FFFFFF  white
+15,15: (255,255,255)  #FFFFFF  white

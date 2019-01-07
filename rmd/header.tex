@@ -1,0 +1,199 @@
+% PAQUETES UTILIZADOS EN EL DOCUMENTO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{babel}
+\usepackage{fancyhdr} % Encabezados y pies de página
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{lastpage} % Se usa para saber la última página. No me funciona
+\usepackage{rotating} % Rotar objetos
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{color} % Colores usados
+\usepackage{listings} % Formato de código impreso
+\usepackage{longtable} % Tablas largas
+\usepackage{setspace}
+\usepackage{etoolbox} 
+\usepackage{caption} % Formato del caption de tablas, figuras y código
+\usepackage{colortbl} % Para usar rowcolor en las tablas
+\usepackage{listingsutf8}
+\usepackage{hyperref}
+\usepackage{multirow} % Para fusionar filas en las tablas creadas en LaTeX
+\usepackage[export]{adjustbox} % Para poner un frame alrededor de las figuras
+\usepackage{titling}
+%\usepackage{titlesec} %Modificación de títulos de capítulos, secciones, ...
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% FONTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+ \renewcommand{\familydefault}{\sfdefault}
+
+% HYPERREF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% En esta primera parte definimos las prodpiedades del pdf que
+% vamos a generar; autor, título y asunto.
+
+\hypersetup{
+  pdftitle={Máquinas de Vector Soporte | Support Vector Machine}, 
+  pdfauthor={Ibon Martínez Arranz}, 
+  pdfsubject={Curso 2018-2019},
+  pdfproducer={Ibon Martínez Arranz},
+  pdfcreator={Ibon Martínez Arranz},
+  pdfkeywords={metabolómica} {normalización} {machine learning} {R} {random forest} {support vector machine} {SVM} {máquinas de vector soporte} 
+}
+
+% COLORES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{codea1b1}{RGB}{245, 200, 97} % Color verde
+\definecolor{codea2b1}{RGB}{248, 91, 36} % Color verde
+\definecolor{codea1b2}{RGB}{166, 218, 232} % Color verde
+\definecolor{codea2b2}{RGB}{44, 88, 113} % Color verde
+\definecolor{codesamples}{RGB}{200, 200, 200} % Color verde
+\definecolor{codeqcv}{RGB}{28, 25, 54} % Color verde
+
+% Estos son los mismos colores que los de arriba pero más claros, 
+% para poder poner como color de fila o así.
+
+\definecolor{codeta1b1}{RGB}{250, 225, 169} % Color verde
+\definecolor{codeta2b1}{RGB}{250, 147, 110} % Color verde
+\definecolor{codeta1b2}{RGB}{227, 243, 248} % Color verde
+\definecolor{codeta2b2}{RGB}{65, 131, 168} % Color verde
+\definecolor{codetsamples}{RGB}{238, 238, 238} % Color verde
+\definecolor{codetqcv}{RGB}{55, 49, 106} % Color verde
+
+% DEFINICIÓN DE TÉRMINOS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\addto\captionsspanish{%
+\def\bibname{Referencias} % Nombre para las referencias bibliográficas
+\def\tablename{Tabla} % Nombre para los cuadros
+\def\listtablename{\'Indice de tablas} % Nombre para los índices de cuadros
+}
+
+% Definimos un ancho en las filas horizontales, en este caso de 2pt.
+% http://tex.stackexchange.com/questions/65731/what-is-the-thickness-of-hrulefill#65734
+% http://tex.stackexchange.com/questions/32597/vertically-centered-horizontal-rule-filling-the-rest-of-a-line
+
+\def\mihrulefill{\leavevmode\leaders\hrule height 2pt\hfill\kern 0pt} 
+\newcommand{\minitab}[2][l]{\begin{tabular}{#1}#2\end{tabular}}
+
+% HYPHENATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\hyphenation{cua-tri-mes-tre ANOVA re-cha-za-mos va-ria-ble Corres-pon-den-cias 
+cua-tri-mes-tres a-na-li-zan-do hones-tas aque-llas que-re-mos re-cha-za obvio 
+lo-ca-li-za-ci\'on A-na-li-za-mos ge-ne-ra-li-za-do ge-ne-ra-li-zar di-fe-ren-tes 
+de-no-mi-na-mos boots-trap ob-te-ner di-fe-ren-cia-mos va-ria-bles Forrest 
+Maechler pro-ble-ma va-rian-za di-fe-ren-cias co-mu-na-li-da-des si-guien-tes 
+si-guien-do in-cum-pli-mien-tos va-ria-ci-\'on nor-ma-li-dad pro-pia-men-te
+e-nun-cia-do mul-ti-co-li-nea-li-dad a-glo-me-ra-ci\'on e-jem-plo de-sa-rro-llar 
+cuales-quie-ra corre-la-ci\'on va-lo-res su-pues-tos co-li-nea-li-dad 
+de-pen-dien-tes con-glo-me-ra-dos ob-te-ni-dos da-tos au-sen-tes pa-res pro-ba-bi-li-dad}
+
+
+% LISTINGS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% https://es.sharelatex.com/learn/Code_listing
+% http://mirror.hmc.edu/ctan/macros/latex/contrib/listings/listings.pdf
+
+\renewcommand{\lstlistingname}{C\'odigo }% Dejamos un espacio para que haya separación entre Código y el número de código.
+\renewcommand{\lstlistlistingname}{\'Indice de c\'odigos}%
+
+% Los códigos de colores los he extraido del formato que produce knitr
+\definecolor{codegreen}{RGB}{79, 153, 5} % Color verde
+\definecolor{codegray}{RGB}{80, 80, 80} % Color gris (tirando a negro)
+\definecolor{codeblue}{RGB}{33, 74, 135} % Color azul
+\definecolor{backcolour}{RGB}{247, 247, 247} % Color gris (tirando a blanco)
+\definecolor{codeorange}{RGB}{143, 89, 3} % Color naranja
+ 
+\lstdefinestyle{tfmstyle}{
+    frame = single,
+    framerule = 0pt,
+    backgroundcolor = \color{backcolour}, % Color del fondo del código
+    commentstyle = \color{codeorange}, % Color de los comentarios
+    keywordstyle = \color{codeblue}, % Color de las palabras clave del lenguaje (R)
+    numberstyle = \tiny\color{codegray}, % Color de los números de línea
+    stringstyle = \color{codegreen}, % Color de las cadenas de texto
+    basicstyle = \footnotesize\ttfamily, % Formato de la letra
+    language = R, % Lenguaje R por defecto
+    breakatwhitespace = false,  
+    aboveskip = 10pt,
+    belowskip = 10pt,
+    breaklines = true,                 
+    captionpos = b, % Posición del caption (b = bottom)
+    keepspaces = true,     
+    emph = {TRUE, FALSE}, % Palabras a resaltar
+    emphstyle = \color{codeorange}, % Formato con el que se resaltan las palabras a enfatizar
+    numbers = left, % Posición de los números (left/right/none)
+    numbersep = 5pt, % Separación de los números
+    stepnumber = 1, % Números a imprimir (stepnumber = 1, pone todos, setpnumber = 5, cada cinco)
+    showspaces = false,                
+    showstringspaces = false,
+    showtabs = false, % No representamos los tabuladores
+    tabsize = 2, % Tamaño del tabulador
+    extendedchars = false
+}
+ 
+\lstset{style=tfmstyle}
+
+% http://mirror.hmc.edu/ctan/macros/latex/contrib/listings/listings.pdf
+
+\AtBeginDocument{%
+    \renewcommand{\thelstlisting}{\arabic{section}.\arabic{lstlisting}}%
+} 
+
+
+
+% LONGTABLE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% http://tex.stackexchange.com/questions/164154/longtable-caption-formatting
+
+% \AtBeginEnvironment{longtable}{\singlespacing} % Lo ponen en los ejemplos pero a mi no me hace ningun efecto
+% \AtBeginEnvironment{longtable}{\linespread{1}\selectfont}
+% \setlength{\LTcapwidth}{\linewidth} % Anchura del texto del caption ajustado a la línea de la tabla
+\setlength{\LTcapwidth}{0.90\textwidth} % Anchura del texto del caption del longtable. Me quedo con esta para que todas sean iguales
+
+% CAPTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% http://tex.stackexchange.com/questions/156143/longtable-caption-make-it-look-like-table-caption-as-defined-by-a-latex-class#156267
+% http://osl.ugr.es/CTAN/macros/latex/contrib/caption/caption-eng.pdf
+
+\captionsetup{
+   %justification = raggedright, % Modo de justificación
+   skip = 10pt, % Separación de la tabla, figura o código
+   labelfont = bf, % Tabla, Figura, Código, en negrita
+   textfont = it, % El texto del caption en itálica
+   width = .90\textwidth, % Anchura del caption
+   singlelinecheck = off,
+   position = bottom % El caption siempre abajo
+}
+
+% FIGURES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\thefigure}{\arabic{section}.\arabic{figure}}
+
+% TABLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\thetable}{\arabic{section}.\arabic{table}}
+
+% EQUATIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\numberwithin{equation}{section}
+
+% CHAPTERS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{gray75}{gray}{0.75} % Color gris
+\definecolor{gray65}{gray}{0.65} % Color gris
+%\titleformat{\section}[hang]{\huge\bfseries}{\textcolor{gray65}{\thesection\hspace{15pt}|}\hspace{15pt}}{0pt}{\huge\bfseries}
+%\titleformat{\subsection}[hang]{\Large\bfseries}{\textcolor{gray65}{\thesubsection\hspace{15pt}|}\hspace{15pt}}{0pt}{\Large\bfseries}
+%\titleformat{\subsubsection}[hang]{\large\bfseries}{\textcolor{gray65}{\thesubsubsection\hspace{15pt}|}\hspace{15pt}}{0pt}{\large\bfseries}
+%\titleformat{\paragraph}[hang]{\normalsize\bfseries}{\textcolor{gray65}{\theparagraph\hspace{15pt}|}\hspace{15pt}}{0pt}{\normalsize\bfseries}
+%\titleformat{\subparagraph}[hang]{\normalsize\bfseries}{\textcolor{gray65}{\thesubparagraph\hspace{15pt}|}\hspace{15pt}}{0pt}{\normalsize\bfseries}
+
+%\titlespacing{\section}{0pt}{*4.0}{*1.5}
+%\titlespacing{\subsection}{0pt}{*3.5}{*1.2}
+%\titlespacing{\subsubsection}{0pt}{*3.0}{*1.0}
+%\titlespacing{\paragraph}{0pt}{*2.5}{*0.8}
+%\titlespacing{\subparagraph}{0pt}{*2.0}{*0.6}
+
+% DECLAREGRAPHICSEXTENSIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DeclareGraphicsExtensions{.pdf,.png,.jpg}

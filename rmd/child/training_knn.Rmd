@@ -1,0 +1,250 @@
+\clearpage
+\newpage
+
+## K-nearest neighbour
+
+Queremos entrenar un modelo $k$-nn a nuestros datos en las tres imputaciones de datos perdidos que hemos estudiado. Para ello, utilizamos la librería `caret` de R y en particular la función `train`. Esta función configura una cuadrícula de parámetros de ajuste para una serie de rutinas de clasificación y regresión, se adapta a cada modelo y calcula una medida de rendimiento basada remuestreo. En el caso particular del algoritmo k-nn vamos a asignar a nuestros datos un preproceso de centrado y escalado (media cero y desviación típica 1 para todas las variables) ya que al tratarse de una técnica basada en las distancias entre observaciones necesitamos estandarizar todas las variables para que no influyan unas variables más que otras sólo por el hecho de tener más o menos dispersión o escala. También, vamos a evaluar el modelo 50 veces considerando cada una de ellas un 80% de la muestra para el entrenamiento, así, para cada valor de $k$ la función `train` nos devolverá la exactitud promedio obtenida de cada una de las iteraciones. Aplicamos la función `train` con los siguientes parámetros:
+
+```{r, echo = TRUE, eval = FALSE}
+train(form = DIAGNO ~ .,
+      data = DATA,
+      method = "knn",
+      preProcess = c("center", "scale"),
+      trControl = trainControl(p = 0.8, number = 50),
+      metric = "Accuracy",
+      tuneLength = 20,
+      maximize = TRUE)  
+```
+
+Definimos cada uno de los argumentos:
+
+* `form = DIAGNO ~ .`: Estructura del modelo para explicar la variable `DIAGNO` en función del resto de variables.
+* `data = DATA`: Datos con los que vamos a trabajar.
+* `method = "knn"`: Método de clasificación a considerar.
+* `preProcess = c("center", "scale")`: Realizamos un preprocesamiento de los datos. En este caso, centramos las variables y las escalamos (igualamos sus varianzas).
+* `metric = "Accuracy"`: Criterio utilizado para optimizar el algoritmo. En este caso utilizamos la exactitud de las predicciones para ajustarlo.
+* `tuneLength = 20`: Número de parámetros $k$ a considerar.
+* `maximize = TRUE`: Parámetro con el que confirmamos que lo que queremos es maximizar la exactitud.
+
+```{r, echo = FALSE, eval = FALSE}
+# load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+load("../output/imp.Rdata")
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+knn.train.4 <- vector("list", 3)
+knn.train.3 <- vector("list", 3)
+knn.train.2 <- vector("list", 3)
+
+CLASS <- ACM$DIAGNO
+
+for (i in 1:3) {
+  knn.train.4[[i]] <- train(DIAGNO ~ .,
+        data = ACM.imp[[i]][, -3],
+        method = "knn",
+        preProcess = c("center", "scale"),
+        trControl = trainControl(p = 0.8, number = 50),
+        metric = "Accuracy",
+        tuneLength = 20,
+        maximize = TRUE)  
+}
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (i in 1:3) {
+  knn.train.3[[i]] <- train(DIAGNO ~ .,
+        data = ACM.imp[[i]][, -3],
+        method = "knn",
+        preProcess = c("center", "scale"),
+        trControl = trainControl(p = 0.8, number = 50),
+        metric = "Accuracy",
+        tuneLength = 20,
+        maximize = TRUE)  
+}
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (i in 1:3) {
+  knn.train.2[[i]] <- train(DIAGNO ~ .,
+        data = ACM.imp[[i]][, -3],
+        method = "knn",
+        preProcess = c("center", "scale"),
+        trControl = trainControl(p = 0.8, number = 50),
+        metric = "Accuracy",
+        tuneLength = 20,
+        maximize = TRUE)  
+}
+
+save(knn.train.4, knn.train.3, knn.train.2, file = "/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/knn.train.Rdata")
+
+```
+
+```{r, echo = FALSE, eval = TRUE}
+# load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/knn.train.Rdata")
+load("../../output/knn.train.Rdata")
+```
+
+### Clasificación de cuatro clases
+
+Hemos atacado el problema de la clasificación de los cuatro grados de la enfermedad: Grado 1, Grado 2, Grado 3 y Grado 4, mediante un algoritmo $k$-nn.
+
+En la tabla \ref{tab:knn_train_4_results_minimo} se muestran los resultados obtenidos con la función `train` aplicado a los datos tras realizar la imputación de valores perdidos según el método del valor mínimo. Las dos primeras columnas son la exactitud (*accuracy*) y el parámetro *kappa*. Para $k$=9, obtenemos una exactitud de `r sprintf("%.4f", knn.train.4[[1]]$results$Accuracy[3])` y un valor *kappa* de `r sprintf("%.4f", knn.train.4[[1]]$results$Kappa[3])`. 
+
+```{r label = 'tab:knn_train_4_results_minimo', echo = FALSE, results = 'asis'}
+xtabla <- xtable(knn.train.4[[1]]$results, caption = "Salida de la función train de la librería caret para nuestros datos. Imputación de valores perdidos mediante el método del mínimo.", label = "tab:knn_train_4_results_minimo", digits = 4)
+print(xtabla, hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), comment = FALSE, include.rownames = FALSE)
+```
+
+```{r label = 'tab:knn_train_4_results_beta', echo = FALSE, results = 'asis'}
+xtabla <- xtable(knn.train.4[[2]]$results, caption = "Salida de la función train de la librería caret para nuestros datos. Imputación de valores perdidos mediante el método de la distribución beta.", label = "tab:knn_train_4_results_beta", digits = 4)
+print(xtabla, hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), comment = FALSE, include.rownames = FALSE)
+```
+
+```{r label = 'tab:knn_train_4_results_corr', echo = FALSE, results = 'asis'}
+xtabla <- xtable(knn.train.4[[3]]$results, caption = "Salida de la función train de la librería caret para nuestros datos. Imputación de valores perdidos mediante el método de correlaciones.", label = "tab:knn_train_4_results_corr", digits = 4)
+print(xtabla, hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), comment = FALSE, include.rownames = FALSE)
+```
+
+
+```{r label = 'train_knn_4_class_ka_ac', echo = FALSE, fig.width = 7, fig.height = 5, fig.cap = 'Relación entre la exactitud y el parámetro kappa en función del número de vecinos considerados. Los datos finales obtenidos mediante el método de imputación del mínimo o de la distribución beta presenta resultados similares, y se observa que considerando un número de vecinos k = 7, 9 y 11 son los que presentan mayor exactitud y mayor parámetro kappa.', fig.scap = 'Relación entre la exactitud y el parámetro kappa en función del número de vecinos considerados.', fig.lp = 'fig:', fig.align = 'center'}
+
+titulos <- c("mínimo", "beta", "correlación")
+par(mfrow = c(1, 3))
+for (imputacion in 1:3) {
+  plot(knn.train.4[[imputacion]]$results$Accuracy,
+       knn.train.4[[imputacion]]$results$Kappa,
+       pch = 16, cex = 0.3, col = gray(0.7),
+       main = paste("Imputación: ", titulos[imputacion], sep = ""),
+       xlab = "Accuracy", ylab = "kappa", yaxt = "n", xaxt = "n")
+  axis(1, las = 1, cex.axis = 0.8)
+  axis(2, las = 2, cex.axis = 0.8)
+  text(x = knn.train.4[[imputacion]]$results$Accuracy,
+       y = knn.train.4[[imputacion]]$results$Kappa,
+       cex = 1.0, 
+       labels = knn.train.4[[imputacion]]$results$k, adj = c(1.2, 0.5))  
+}
+```
+
+En la figura \ref{fig:train_knn_4_class} se muestra la evolución de la exactitud en función del parámetro $k$ para cada tipo de imputación de valores perdidos (valor mínimo, distribución beta e imputación por correlación). Observamos que la exactitud es bastante estable para valores de $k$ de 3 a 43 situándose en torno al 50% de aciertos. No olvidemos que estamos clasificando cuatro grupos y que una asignación al azar sólo daría una exactitud del 25%.
+
+```{r label = 'train_knn_4_class', echo = FALSE, fig.width = 6, fig.height = 5, fig.cap = 'Exactitud obtenida para cada k considerando los tres tipos de imputación de valores perdidos. El proceso se ha repetido 50 veces considerando un 80\\% de las muestras.', fig.lp = 'fig:', fig.align = 'center'}
+knn.train <- knn.train.4
+
+plot(knn.train[[1]]$results$k, 
+     knn.train[[1]]$results$Accuracy, type = "l",
+     xlab = "k", ylab = "Exactitud", yaxt = "n",
+     ylim = c(0.46, 0.52), lwd = 3, col = colours()[547])
+axis(2, las = 2)
+lines(knn.train[[2]]$results$k,
+      knn.train[[2]]$results$Accuracy, 
+      lwd = 3, col = colours()[574])
+lines(knn.train[[3]]$results$k, 
+      knn.train[[3]]$results$Accuracy, 
+      lwd = 3, col = colours()[597])
+abline(h = pretty(c(0.46,0.52)), lty = 2, col = gray(0.6))
+abline(v = pretty(knn.train[[1]]$results$k), lty = 2, col = gray(0.6))
+legend(x = "topleft",
+       title = "Tipo de imputación",
+       legend = c("mínimo", "beta", "correlación"),
+       col = colours()[c(547,574,597)], lwd = 3,
+       bty = "n", cex = 0.7)
+```
+
+\clearpage
+
+### Clasificación de tres clases
+
+Hemos atacado el problema de la clasificación de los cuatro grados de la enfermedad considerando una recodificación: Grado 1, Grado 2 (Grado 3 y Grado 3 originales) y Grado 3 (Grado 4 original), mediante un algoritmo $k$-nn.
+
+En la figura \ref{fig:train_knn_3_class} observamos diferencias entre los tres tipos de imputación, siendo la imputación por valor mínimo la que mejor resultados ofrece, seguida por la imputación por correlación. La máxima exactitud está en torno a 0,55 para valores de $k$ de 10 a 20.
+
+```{r label = 'train_knn_3_class', echo = FALSE, fig.width = 6, fig.height = 5, fig.cap = 'Exactitud obtenida para cada k considerando los tres tipos de imputación de valores perdidos. El proceso se ha repetido 50 veces considerando un 80\\% de las muestras.', fig.lp = 'fig:', fig.align = 'center'}
+knn.train <- knn.train.3
+
+plot(knn.train[[1]]$results$k, 
+     knn.train[[1]]$results$Accuracy, type = "l",
+     xlab = "k", ylab = "Exactitud", yaxt = "n",
+     ylim = c(0.50, 0.58), lwd = 3, col = colours()[547])
+axis(2, las = 2)
+lines(knn.train[[2]]$results$k,
+      knn.train[[2]]$results$Accuracy, 
+      lwd = 3, col = colours()[574])
+lines(knn.train[[3]]$results$k, 
+      knn.train[[3]]$results$Accuracy, 
+      lwd = 3, col = colours()[597])
+abline(h = pretty(c(0.50,0.58)), lty = 2, col = gray(0.6))
+abline(v = pretty(knn.train[[1]]$results$k), lty = 2, col = gray(0.6))
+legend(x = "topleft",
+       title = "Tipo de imputación",
+       legend = c("mínimo", "beta", "correlación"),
+       col = colours()[c(547,574,597)], lwd = 3,
+       bty = "n", cex = 0.7)
+```
+
+\clearpage
+
+### Clasificacion de dos clases
+
+Hemos atacado el problema de la clasificación de los cuatro grados de la enfermedad considerando una recodificación: Grado 1 (Grado 1, Grado 2 y Grado 3 originales) y Grado 2 (Grado 4 original).
+
+En la figura \ref{fig:train_knn_2_class} los resultados son muy parecidos para los diferentes métodos de imputación y la máxima exactitud se obtiene para un valor de $k$ en torno a 30.
+
+```{r label = 'train_knn_2_class', echo = FALSE, fig.width = 6, fig.height = 5, fig.cap = 'Exactitud obtenida para cada k considerando los tres tipos de imputación de valores perdidos. El proceso se ha repetido 50 veces considerando un 80\\% de las muestras.', fig.lp = 'fig:', fig.align = 'center'}
+knn.train <- knn.train.2
+
+plot(knn.train[[1]]$results$k, 
+     knn.train[[1]]$results$Accuracy, type = "l",
+     xlab = "k", ylab = "Exactitud", yaxt = "n",
+     ylim = c(0.56, 0.64), lwd = 3, col = colours()[547])
+axis(2, las = 2)
+lines(knn.train[[2]]$results$k,
+      knn.train[[2]]$results$Accuracy, 
+      lwd = 3, col = colours()[574])
+lines(knn.train[[3]]$results$k, 
+      knn.train[[3]]$results$Accuracy, 
+      lwd = 3, col = colours()[597])
+abline(h = pretty(c(0.56,0.64)), lty = 2, col = gray(0.6))
+abline(v = pretty(knn.train[[1]]$results$k), lty = 2, col = gray(0.6))
+legend(x = "topleft",
+       title = "Tipo de imputación",
+       legend = c("mínimo", "beta", "correlación"),
+       col = colours()[c(547,574,597)], lwd = 3,
+       bty = "n", cex = 0.7)
+```
+
+```{r, echo = FALSE, eval = FALSE}
+# Así voy guardando lo generado y puedo ir utilizando los objetos para 
+# otros análisis
+save(list=ls(), file = "/home/ibon/Escritorio/DM.Rdata")
+```
+
+
+### Conclusiones

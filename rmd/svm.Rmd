@@ -1,0 +1,1197 @@
+---
+documentclass: article
+lang: es-ES
+classoption: a4paper
+fontsize: 12pt
+fontfamily: times
+linestretch: 1.25
+geometry:
+  - tmargin = 4cm
+  - bmargin = 4cm
+  - lmargin = 3cm
+  - rmargin = 3cm
+graphics: yes
+keep_md: true
+output: 
+  pdf_document:
+    toc_depth: 4
+    keep_tex: true
+    number_sections: true
+    includes:
+      in_header: header.tex
+      before_body: doc_prefix_b.tex
+      after_body: doc_suffix.tex
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: 
+      collapsed: true
+      smooth_scroll: false
+    theme: "flatly"
+    code_folding: hide
+bibliography: 
+  - ./bibliography/bibliography_statistics.bib 
+  - ./bibliography/bibliography_metabolomics.bib 
+  - ./bibliography/bibliography_r_packages.bib 
+  - ./bibliography/bibliography.bib 
+csl: ./csl/journal-of-statistical-computation-and-simulation.csl    
+nocite: |
+  @krzywinskipostd2014,
+  @altmanslr2015,
+  @altman2016a,
+  @altman2016b,
+  @kuehl2001,
+  @pulido2004,
+  @martinezarranz2015,
+  @xie2014,
+  @xie2015,
+  @xie2016package,
+  @armitage2014,
+  @miroslava2013,
+  @fox1997
+params:
+  evaluar_modelos: TRUE
+  salvar_rdata: FALSE
+---
+
+```{r label = 'libreries', echo = FALSE, message = FALSE, warning = FALSE}
+suppressPackageStartupMessages(library("caret"))
+suppressPackageStartupMessages(library("knitr"))
+suppressPackageStartupMessages(library("xtable"))
+suppressPackageStartupMessages(library("lattice"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("e1071"))
+suppressPackageStartupMessages(library("kernlab")) # svmRadial
+suppressPackageStartupMessages(library("extrafont")) # listado de fuentes del sistema
+suppressPackageStartupMessages(library("pheatmap"))
+suppressPackageStartupMessages(library("pROC")) # para gráficos varImp
+suppressPackageStartupMessages(library("RColorBrewer"))
+suppressPackageStartupMessages(library("ca"))
+suppressPackageStartupMessages(library("tables"))
+suppressPackageStartupMessages(library("randomForest")) # para gráficos varImp
+```
+
+```{r label = 'knitr_options', echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      dev = c('pdf', 'png'),
+                      dpi = 216,
+                      fig.path = 'graphics/svm/', 
+                      fig.lp = 'fig:', 
+                      fig.pos = "h",
+                      fig.width = 6,
+                      fig.height = 6,
+                      fig.align = 'center',
+                      out.width = '80%',
+                      echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+```{r label = 'functions', echo = FALSE}
+mlplot <- function(svm, main = "") {
+  AUX <- svm$results
+  AUX$C <- log(AUX$C, base = 2)
+  levelplot(Accuracy~C*sigma, data = AUX, 
+            cuts = 20, pretty = TRUE, aspect = "fill",
+            col.regions = colorRampPalette(c("red", "white", "green4")),
+            xlab = expression(paste(log[2], "(C)", sep = "")), 
+            xaxt = "n", 
+            # contour = TRUE, labels = TRUE,
+            main = main, cex.main = 0.7,
+            ylab = expression(paste("sigma (", sigma, ")", sep = "")),
+            colorkey = list(space = "right", 
+                            col = colorRampPalette(c("red", "white", "green4"))))  
+}
+```
+
+# Máquinas de Vector Soporte (SVM, Support Vector Machine)
+
+En el contexto de *Machine Learning*, las Máquinas de Vector Soporte son modelos de aprendizaje supervisado asociados a los algoritmos que analizan datos para su análisis de clasificación y/o regresión.
+
+Dado un conjunto de muestras de entrenamiento, cada una de ellas clasificada en una categoría, el algoritmo de entrenamiento de una SVM construye un modelo que asigna una clase a cada observación. Un modelo SVM es una representación de estas muestras en el espacio de tal manera que las muestras de cada categoría están separadas de forma clara.
+
+## Historia
+
+El algoritmo original de las Máquinas de Vector Soporte fue escrito por *Vladimir N. Vapnik* y *Alexey Ya. Chervonenkis* en 1963. En 1992, *Bernhard E. Boser*, *Isabelle M. Guyon* y *Vladimir N. Vapnik* sugirieron una metodología para crear clasificadores no lineales aplicando el mismo concepto de hiperplanos de margen máximo.
+
+## Motivación
+
+La clasificación de muestras es una tarea común en *Machine learning* en la que dados unos datos en los que cada observación pertenece a alguna clase y la finalidad es decidir a qué clase asignar una nueva observación. En el caso de las SVM, cada observación se considera un vector de *p* dimensiones (tenemos *p* variables) y tratamos de separar cada clase. Si lo hacemos con hiperplano de dimensiones *p-1* estaremos aplicando un clasificador lineal. Hay muchos hiperplanos que podrían clasificar nuestros datos. Podemos razonar y buscar aquel hiperplano que muestra la mayor separación entre clases. Elegimos entonces aquel hiperplano cuya distancia a los puntos más cercanos de cada lado sea máxima. Si tal hiperplano existe se denomina *hiperplano de máximo margen* y el clasificador lineal asociado se define como *clasificador de máximo margen*.
+
+## Definición
+
+Podemos definir más formalmente este hiperplano. Una Máquina de Vector Soporte construye un hiperplano o conjunto de hiperplanos *n*-dimensionales que pueden ser usado para clasificación, regresión u otras tareas. Geométricamente, una buena separación se alcanzará por aquel hiperplano que tenga la mayor distancia entre las observaciones de cada clase en las muestras de entrenamiento.
+
+### kernel
+
+A veces, el problema original puede ser resuelto en un espacio de dimensión finita, pero en otras ocasiones sucede que los conjuntos a discriminar no tienen una separación lineal en ese espacio. Para solventar este inconveniente, el espacio de dimensión finita donde está planteado el problema puede ser transformado a un espacio de dimensión mayor, donde es esperable que la separación entre clases se más fácil de calcular.
+
+El aumentar la dimensión del espacio en el que estamos trabajando implica un coste computacional mayor. Para que este aumento sea razonable las transformaciones a espacios de dimensión mayor se diseñan de tal manera que los productos escalares en estos nuevos espacios puedan ser calculados fácilmente en términos de las variables iniciales. Para ello se utilizan las funciones *kernel* ${\displaystyle k(x,y)}$ seleccionadas específicamente para resolver este problema. Los hiperplanos en una mayor dimensión son definidos como aquellos conjuntos de puntos tales que su producto escalar con un vector en ese espacio es constante. Los vectores que definen los hiperplanos pueden ser elegidos como una combinación lineal con parámetros ${\displaystyle \alpha_{i}}$ de imágenes de los vectores de características ${\displaystyle x_{i}}$. Si elegimos el hiperplano con estas propiedades, los puntos ${\displaystyle x}$ en el espacio de características son llevados hiperplanos que se define por la siguiente relación:
+
+\begin{equation}
+{\displaystyle \textstyle \sum_{i}\alpha_{i}\cdot k(x_{i},x) = \mathrm {constante}}
+\end{equation}
+
+Tenemos que tener en cuenta que si ${\displaystyle k(x,y)}$ se vuelve pequeño a medida que ${\displaystyle y}$ crece más lejos de ${\displaystyle x}$, cada término de la suma mide el grado de cercanía de la prueba Punto ${\displaystyle x}$ al punto de base de datos correspondiente ${\displaystyle x_ {i}}$. De esta manera, la suma de los núcleos anteriores puede usarse para medir la proximidad relativa de cada punto de prueba a los puntos de datos originados en uno u otro de los conjuntos a discriminar. 
+
+#### Construcción de un *kernel*
+
+Como hemos comentado, la función *kernel* nos lleva el espacio de características (donde están nuestros datos) a un nuevo espacio de dimensión mayor de tal manera que sea fácil calcular el producto escalar 
+
+Sea el *kernel* definido como
+
+\begin{equation}
+\Phi (x_1, x_2) = \Phi(x_1^2, x_2^2, \sqrt{2 x_1 x_2} ) = (z_1, z_2, z_3)
+\end{equation}
+
+que lleva un punto $x \in R^2$ a $z \in R^3$. En la figura \ref{fig:kernel_trick} observamos que este kernel separa el interior de la circunferencia con el exterior con un hiperplano en $R^3$, siendo mucho más fácil separar las clases en las que están divididas las observaciones.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.90\linewidth]{./figures/kernel-trick.png}
+\caption{El kernel así definido separa el interior de la circunferencia con el exterior con un hiperplano en $R^3$, siendo mucho más fácil separar las clases en las que están divididas las observaciones.}
+\label{fig:kernel_trick}
+\end{center}
+\end{figure}
+
+\clearpage
+
+<!-- https://www.r-bloggers.com/learning-kernels-svm/ -->
+
+Las Máquinas de Vector Soporte funcionan agrupando los puntos de las características según sus clases. En la figura \ref{fig:kernel_lineal} se generan dos vectores de características bidimensionales $x = \{x_1, x_2\}$ de tal manera que la clase $y = -1$ puntos (triángulos) están bien separados de la clase $y = 1$ (círculos).
+
+El algoritmo encuentra el mayor margen lineal posible que separa estas dos regiones. Los separadores se apoyan sobre los puntos avanzados que están justo en la línea frente a sus respectivas regiones. Estos puntos, marcados como dos triángulos en negrita y un círculo en negrita en la figura \ref{fig:kernel_lineal}, se llaman los *vectores de apoyo* o *vectores soporte*, ya que están apoyando las líneas de separación. De hecho, la tarea de aprendizaje del algoritmo de Máquinas de Vector Soporte consiste en determinar estos puntos vector de soporte y la distancia de margen que separa las regiones. Después del entrenamiento, todos los demás puntos de no apoyo no se usará para futuras predicciones.
+
+En el espacio de características lineales, los vectores soporte se suman a un vector de hipótesis general *h*, 
+
+\begin{equation}
+h = \sum_i c_i x_i
+\end{equation}
+
+De modo que las fronteras de clasificación están dadas por las líneas $hx + b = 1$ y $hx + b = -1$ centradas alrededor de $hx + b = 0$.
+
+El código \ref{cod:kernel_lineal} en el anexo es una modificación de la implementación de la función `ksvm()` en el paquete `kernlab` de `R`, haciendo uso de los tutoriales de *Jean-Philippe Vert* para representar las líneas de separación de clasificación mediante un kernel lineal.
+
+
+```{r label = 'kernel_lineal', echo = FALSE, eval = TRUE, fig.width = 5, fig.height = 5, fig.cap = 'Implementación de la función {\\tt ksvm()} en el paquete {\\tt kernlab} de {\\tt R} para representar las líneas de separación de clasificación.'}
+require('kernlab')
+ 
+kfunction <- function(linear = 0, quadratic = 0)
+{
+  k <- function (x,y)
+ {
+     linear*sum((x)*(y)) + quadratic*sum((x^2)*(y^2))
+  }
+  class(k) <- "kernel"
+  k
+}
+ 
+n <- 25
+a1 <- rnorm(n)
+a2 <- 1 - a1 + 2* runif(n)
+b1 <- rnorm(n)
+b2 <- -1 - b1 - 2*runif(n)
+x <- rbind(matrix(cbind(a1, a2), ncol = 2), matrix(cbind(b1, b2), ncol = 2))
+y <- matrix(c(rep(1, n), rep(-1, n)))
+                       
+svp <- ksvm(x,
+            y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(1, 0),
+            scaled = c())
+
+plot(range(x[, 1]),
+     range(x[, 2]),
+     type = 'n',
+     xlab = expression(X[1]),
+     ylab = expression(X[2]))
+title(main = 'Características separables lineales')
+
+ymat <- ymatrix(svp)
+points(x = x[-SVindex(svp), 1], 
+       y = x[-SVindex(svp), 2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1)) # 1: círculo 2: triángulo
+points(x = x[SVindex(svp), 1], 
+       y = x[SVindex(svp), 2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16)) # 16: círculo cerrado 17: triángulo cerrado
+    
+# Extraemos el vector w y b del modelo
+w <- colSums(coef(svp)[[1]] * x[SVindex(svp), ])
+b <- b(svp)
+    
+# Dibujamos las líneas
+abline(b/w[2], -w[1]/w[2])
+abline((b + 1)/w[2], -w[1]/w[2], col = "gray")
+abline((b - 1)/w[2], -w[1]/w[2], col = "gray")
+
+```
+
+\clearpage
+
+En la figura \ref{fig:kernel_cuadratico} se ilustra un ejemplo en el que las observaciones no están separados . Los puntos de la clase $y = 1$ (círculos) se colocan en una región interior rodeada por puntos de clase $y = -1$ (triángulos). En este ejemplo no hay una sola línea recta (lineal) que pueda separar ambas regiones. Sin embargo es posible encontrar un separador lineal mediante la transformación de los puntos $x = \{x_1, x_2\}$ del espacio de características a un espacio cuadrático de núcleos con puntos dados por las correspondientes coordenadas cuadradas $\{x_1^2, x_2^2 \}$. El código en `R` puede consultarse en el código \ref{cod:kernel_cuadratico} en el anexo.
+
+La técnica de transformar el espacio de características en una medida que permite una separación lineal puede formalizarse en términos de *kernel*. Suponiendo que $\Phi ()$ sea una función de transformación vectorial de coordenadas, un espacio de coordenadas cuadráticas sería $\{\Phi (x_1), \Phi (x_2) \} = \{x_1^2, x_2^2 \}$. La búsqueda de separación de la SVM está actuando ahora en el espacio transformado para encontrar los vectores de soporte que generan la condición:
+
+\begin{equation}
+h \Phi (x) + b = \pm 1
+\end{equation}
+
+Para el vector de hipótesis $h$:
+
+\begin{equation}
+h = \sum_i c_i \Phi \left(x_i\right)
+\end{equation}
+
+Dada por la suma sobre los puntos vectoriales de soporte $x_i$. Poniendo ambas expresiones juntas obtenemos
+
+\begin{equation}
+\sum_i c_i K\left( x_i, x\right) + b = \pm 1
+\end{equation}
+
+Con la función de kernel escalar $K\left(x_i, x\right) = \Phi\left(x_i\right)\cdot \Phi\left(x\right)$. El kernel se compone del producto escalar entre un vector soporte $x_i$ y otro punto vector $x$ de características en el espacio transformado.
+
+En la práctica, el algoritmo SVM puede expresarse completamente en términos de kernels sin tener que especificar realmente la transformación de espacio de entidad. Los núcleos populares son, por ejemplo, potencias superiores del producto escalar lineal (*kernel* polinomial). Otro ejemplo es una probabilidad pesada de distancia entre dos puntos (*kernel* gaussiano).
+
+La implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones. En la figura \ref{fig:kernel_cuadratico} se muestra que regiones no lineales se pueden separar linealmente después de una transformación adecuada.
+
+```{r label = 'kernel_cuadratico', echo = FALSE, eval = TRUE, fig.width = 7, fig.height = 5, fig.cap = 'Implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones.', out.width = '95%'}
+
+require('kernlab')
+
+kfunction <- function(linear = 0, quadratic = 0)
+{
+  k <- function (x,y)
+ {
+     linear*sum((x)*(y)) + quadratic*sum((x^2)*(y^2))
+  }
+  class(k) <- "kernel"
+  k
+}
+ 
+n <- 20
+r <- runif(n)
+a <- 2*pi*runif(n)
+a1 <- r*sin(a)
+a2 <- r*cos(a)
+r <- 2 + runif(n)
+a <- 2*pi*runif(n)
+b1 <- r*sin(a)
+b2 <- r*cos(a)
+x <- rbind(matrix(cbind(a1, a2), ncol = 2), matrix(cbind(b1, b2), ncol = 2))
+y <- matrix(c(rep(1, n), rep(-1, n)))
+                           
+svp <- ksvm(x,
+            y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(0, 1),
+            scaled = c())
+
+par(mfrow = c(1, 2))
+plot(range(x[, 1]),
+     range(x[, 2]),
+     type = 'n',
+     xlab = expression(X[1]),
+     ylab = expression(X[2]))
+
+title(main = 'Espacio de características')
+ymat <- ymatrix(svp)
+points(x = x[-SVindex(svp),1], 
+       y = x[-SVindex(svp),2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1))
+points(x = x[SVindex(svp),1], 
+       y = x[SVindex(svp),2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16))
+    
+# Extraemos el vector w y b del modelo
+w2 <- colSums(coef(svp)[[1]] * x[SVindex(svp), ]^2)
+b <- b(svp)
+ 
+x1 <- seq(min(x[, 1]), max(x[, 1]), 0.01)
+x2 <- seq(min(x[, 2]), max(x[, 2]), 0.01)
+ 
+points(-sqrt((b-w2[1]*x2^2)/w2[2]), x2, pch = 16 , cex = .2 )
+points(sqrt((b-w2[1]*x2^2)/w2[2]), x2, pch = 16 , cex = .2 )
+points(x1, sqrt((b-w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 )
+points(x1, -sqrt((b-w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 )
+ 
+points(-sqrt((1+ b-w2[1]*x2^2)/w2[2]) , x2, pch = 16 , cex = .2 , col = "gray")
+points( sqrt((1 + b-w2[1]*x2^2)/w2[2]) , x2,  pch = 16 , cex = .2 , col = "gray")
+points( x1 , sqrt(( 1 + b -w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 , col = "gray")
+points( x1 , -sqrt(( 1 + b -w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 , col = "gray")
+ 
+points(-sqrt((-1+ b-w2[1]*x2^2)/w2[2]) , x2, pch = 16 , cex = .2 , col = "gray")
+points( sqrt((-1 + b-w2[1]*x2^2)/w2[2]) , x2,  pch = 16 , cex = .2 , col = "gray")
+points( x1 , sqrt(( -1 + b -w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 , col = "gray")
+points( x1 , -sqrt(( -1 + b -w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 , col = "gray")
+ 
+xsq <- x^2
+svp <- ksvm(x = xsq,
+            y = y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(1, 0),
+            scaled = c())
+ 
+plot(x = range(xsq[, 1]),
+     y = range(xsq[, 2]),
+     type = 'n',
+     xlab = expression(X[1]^2),
+     ylab = expression(X[2]^2))
+
+title(main='Espacio cuadrático')
+ymat <- ymatrix(svp)
+points(x = xsq[-SVindex(svp), 1], 
+       y = xsq[-SVindex(svp), 2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1))
+points(x = xsq[SVindex(svp), 1], 
+       y = xsq[SVindex(svp), 2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16))
+    
+# Extraemos el vector w y b del modelo
+w <- colSums(coef(svp)[[1]] * xsq[SVindex(svp),])
+b <- b(svp)
+    
+# Dibujamos las líneas
+abline(b/w[2], -w[1]/w[2])
+abline((b + 1)/w[2], -w[1]/w[2], col = "gray")
+abline((b - 1)/w[2], -w[1]/w[2], col = "gray")
+```
+
+#### Ejemplos de funciones *kernel* más utilizadas
+
+*kernel* lineal, el más sencillo de los posibles
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \langle x, x^{\prime}\rangle
+\end{equation}
+
+*kernel* de base radial (RBF, Laplace Radial Basis Function)
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left( e^{-\sigma\cdot ||x - x^{\prime}||}\right)
+\end{equation}
+
+*kernel* de base radial (RBF, Gaussian Radial Basis Function)
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left( e^{-\sigma\cdot ||x - x^{\prime}||^{2}}\right)
+\end{equation}
+
+*kernel* polinomial
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left(\beta_1 \langle x, x^{\prime}\rangle + \beta_0\right)^{d}
+\end{equation}
+
+
+
+## Aplicaciones
+
+SVMs pueden ser utilizados para resolver varios problemas del mundo real, como por ejemplo:
+
+* La clasificación de las imágenes se puede realizar usando SVMs. Los resultados experimentales muestran que las SVM logran una precisión de búsqueda significativamente mayor que otros algoritmos de clasificación supervisada.
+
+* Los caracteres escritos a mano se pueden reconocer usando SVM. Estos algoritmos son conocidos como algoritmos [ocr](https://en.wikipedia.org/wiki/Optical_character_recognition). Una aplicación muy conocida de reconocimiento de caracteres son los [captchas](https://en.wikipedia.org/wiki/CAPTCHA).
+
+## SVM lineales
+
+Dado un conjunto *n* de observaciones de entrenamiento de la forma:
+
+\begin{equation}
+({\vec {x}}_{1},y_{1}),\,\ldots ,\,({\vec {x}}_{n},y_{n})
+\end{equation}
+
+Donde ${\displaystyle y_{i}}$ toma los valores -1 o 1, indicando la clase a la que pertenece cada punto ${\displaystyle {\vec {x}}_{i}}$. Cada h ${\displaystyle {\vec {x}}_{i}}$ es un vector de *p* dimensiones. Queremos encontrar el hiperplano de margen máximo que divide el grupo de puntos ${\displaystyle {\vec {x}}_{i}}$ entre los que verifican que ${\displaystyle y_{i} = 1}$ de conjunto de puntos que verifican ${\displaystyle y_{i} = -1}$. Este hiperplano es definido como aquel cuya distancia a los puntos más cercanos ${\displaystyle {\vec {x}}_{i}}$ de cada clase es máxima.
+
+Un hiperplano puede ser descrito como el conjunto de puntos ${\displaystyle {\vec {x}}}$ que satisfacen la siguiente condición:
+
+\begin{equation}
+{\displaystyle {\vec {w}}\cdot {\vec {x}} - b = 0}
+\end{equation}
+
+Donde ${\displaystyle {\vec {w}}}$ es el vector normal (no necesariamente normalizado) al hiperplano. El parámetro ${\displaystyle {\tfrac {b}{\|{\vec {w}}\|}}}$ determina el desplazamiento de la hiperplano desde el origen a lo largo del vector normal ${\displaystyle {\vec {w}}}$.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.90\linewidth]{./figures/maximizar_margen.png}
+\caption{Construcción del hiperplano que maximiza el margen entre las dos clases.}
+\label{fig:maximizar_margen}
+\end{center}
+\end{figure}
+
+\clearpage
+
+## Problemas AND, OR y XOR
+
+
+\begin{table}[]
+\centering
+\begin{tabular}{ccccc}
+\hline\hline
+\multicolumn{2}{c|}{INPUT} & \multicolumn{3}{c}{OUTPUT} \\
+\hline\hline
+A           & B           & A AND B & A OR B & A XOR B \\
+\hline
+-1          & -1          & -1      & -1     & 1       \\
+-1          & 1           & -1      & 1      & -1      \\
+1           & -1          & -1      & 1      & -1      \\
+1           & 1           & -1      & 1      & 1       \\
+\hline\hline
+\end{tabular}
+\caption{Entradas y salidas de los diferentes operadores lógicos.}
+\label{tab:andorxor}
+\end{table}
+
+### Problema AND
+
+AND es un operador lógico cuyo valor de la verdad resulta en cierto sólo si ambas proposiciones son ciertas, y en falso de cualquier otra forma. En la figura \ref{fig:and} vemos cómo la maquina vector soporte de kernel lineal, resuelve el problema usando tres soportes.
+
+```{r label = 'and', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema AND.', out.width = '65%'}
+data.and <- data.frame(x = c(-1, -1, 1, 1), 
+                   y = c(-1, 1, -1, 1),
+                   class = c(-1, -1, -1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.and, 
+               type = "C-svc", 
+               kernel = "vanilladot")
+
+# table(predict(modelo), data.and$class)
+plot(modelo, 
+     data = data.and, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+
+```
+
+### Problema OR
+
+OR es un operador lógico que implementa la disyunción lógica y se comporta de acuerdo a la tabla \ref{tab:andorxor}.
+
+```{r label = 'or', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema OR.', out.width = '65%'}
+data.or <- data.frame(x = c(-1, -1, 1, 1), 
+                       y = c(-1, 1, -1, 1),
+                       class = c(-1, 1, 1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.or, 
+               type = "C-svc", 
+               kernel = "vanilladot")
+
+# table(predict(modelo), data.or$class)
+plot(modelo, 
+     data = data.or, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+```
+
+### Problema XOR
+
+XOR es un operador lógico que implementa la disyunción exclusiva y se comporta de acuerdo a la tabla \ref{tab:andorxor}. En este caso, aún siendo un ejemplo de sólo cuatro observaciones, su solución no es trivial aunque se puede resolver mediante un kernel radial.
+
+```{r label = 'xor', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema XOR.', out.width = '65%'}
+data.xor <- data.frame(x = c(-1, -1, 1, 1), 
+                      y = c(-1, 1, -1, 1),
+                      class = c(1, -1, -1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.xor, 
+               type = "C-svc", 
+               kernel = "rbfdot")
+# table(predict(modelo), data.xor$class)
+plot(modelo, data = data.xor, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+
+```
+
+\clearpage
+
+## Validación de los modelos SVM
+
+Como todos los modelos supervisado, las SVM dependen de las observaciones de entrenamiento. Si cambian estas observaciones, los parámetros del modelo pueden cambiar. En las SVM se observa ademas que la construcción del hiperplano depende de los vectores soporte, si se modifican los vectores soporte se modifica el hiperplano, aunque el resto de observaciones sean las mismas.
+
+Por este motivo, al generar un modelo SVM se debe analizar su robustez mediante un análisis de validación cruzada. Los análisis de validación nos permite valorar el grado de sobreajuste de nuestro modelo a los datos. Un modelo sobreajustado clasificará muy bien las muestras de entrenamiento, pero su exactitud será muy baja cuando pronostique nuevas observaciones.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.9\linewidth]{./figures/complejidad_modelo.pdf}
+\caption{Evolución del error en función en las muestras de entrenamiento y validación en función de la complejidad del modelo. The Elements of Statistical Learning, Trevor Hastie.}
+\label{fig:complejidad_modelo}
+\end{center}
+\end{figure}
+
+### Validación cruzada *leave-one-out*
+
+La validación *leave-one-out* (validación dejando uno fuera) es una validación muy sencilla pero que computacionalmente puede ser muy costosa. El procedimiento de la validación *leave-one-out* se basa en lo siguiente: Si tenemos *n* observaciones entonces construimos *n* Máquinas de Vector Soporte, $\{SVM_1, SVM_2, \ldots, SVM_n\}$, cada una de ellas con *n-1* muestras, $SVM_i = \{1, 2, \ldots, i-1, i+1, \ldots, n \}$ y aplicamos el modelo sobre la muestra no utilizada en la construcción del modelo.
+
+### Validación cruzada *k-fold*
+
+La validación *k-fold* consiste en separar las muestras en *k* grupos de mismo tamaño. Se construyen entonces *k* Máquinas de Vector Soporte con *k-1* grupos y se aplica el modelo resultante sobre el grupo de muestras no incluidas en el modelo. Observamos que si *k = n* estamos ante la validación *leave-one-out*.
+
+\clearpage
+\newpage
+
+# Práctica: Construcción de una Máquina de Vector Soporte con `R`
+
+Hay muchos paquetes en `R` que permiten construir SVM como por ejemplo el paquete `e1071` o el paquete `kernlab`. Nosotros vamos a trabajar con el paquete `caret` un paquete diseñado por *Max Kuhn* precisamente para la búsqueda de modelos, en particular SVM. 
+
+La práctica que vamos a desarrollar consiste en la creación y validación de una Máquina de Vector Soporte que sea capaz de distinguir el dígito escrito en una imagen de entre los diez posibles dígitos: 0, 1, 2, ..., 8 y 9. Los datos se han generado a partir de 130 imágenes por cada dígito en las que en cada imagen el dígito está escrito con una tipografía diferente. El código para generar dichas imágenes está escrito es el código \ref{cod:extrafont} en el anexo.
+
+En total tenemos 1300 imágenes de 16x16 píxeles cada una, por lo que tenemos 256 píxeles de información en cada imagen que podemos considerar como 256 variables. Mediante el programa [imageMagick](http://www.imagemagick.org/) hemos pasado cada imagen a información en texto que podemos leer fácilmente con `R`. En el código \ref{cod:imagemagick} están descritas las primeras 25 líneas de uno de los ficheros generados.
+
+\lstinputlisting[language = R, caption = {ImageMagick pixel enumeration: 30, 30, 255, srgb.}, label = cod:imagemagick, linerange = {1-25}]{./code/imagemagick.txt}
+
+El código anterior son las primeras líneas del fichero en texto de una imagen. La primera fila es la descripción del fichero, la segunda línea nos informa que el punto (0,0) de la imagen es de color blanco. La información está en *rgb*, *hexadecimal* y en modo texto (*white*, *black*). Nosotros utilizaremos la última columna como la información de nuestras variables.
+
+```{r label = 'generar_imagenes_30x30', echo = FALSE, eval = FALSE}
+# http://stackoverflow.com/questions/7121807/how-to-change-the-font-of-the-main-title-in-plot
+# http://blog.revolutionanalytics.com/2012/09/how-to-use-your-favorite-fonts-in-r-charts.html
+
+# Leemos las fuentes que tenemos instaladas en el sistema, en nuestro caso 130, y realizamos
+# 10 gráficos, uno por cada dígito, con cada fuente.
+
+# font_import() # extrafont
+# fonts() # extrafont
+# fonttable() # extrafont
+
+fuentes <- fonts() # extrafont
+
+for (i in 1:length(fonts())) {
+  for (j in 0:9) {
+    filename <- paste("/home/ibon/Escritorio/svm/ejercicio/numeros/", j, "/", fuentes[i], ".png", sep = "")
+    png(filename = filename, width = 30, height = 30)
+    par(mfrow = c(1, 1), mar = c(0,0,0,0))
+    plot(-1, -1, xlim = c(0, 1), ylim = c(0, 1), axes = FALSE)
+    text(x = 0.5, y = 0.5, family = fuentes[i], j, cex = 3)    
+    dev.off()
+  }
+}
+```
+
+```{r label = 'generar_imagenes_16x16', echo = FALSE, eval = FALSE}
+# http://stackoverflow.com/questions/7121807/how-to-change-the-font-of-the-main-title-in-plot
+# http://blog.revolutionanalytics.com/2012/09/how-to-use-your-favorite-fonts-in-r-charts.html
+
+# Leemos las fuentes que tenemos instaladas en el sistema, en nuestro caso 130, y realizamos
+# 10 gráficos, uno por cada dígito, con cada fuente.
+
+# font_import() # extrafont
+# fonts() # extrafont
+# fonttable() # extrafont
+
+fuentes <- fonts() # extrafont
+
+for (i in 1:length(fonts())) {
+  for (j in 0:9) {
+    filename <- paste("/home/ibon/Documentos/Proyectos/presentation/svm - 20170117/rmd/figures/numeros/", j, "/", fuentes[i], ".png", sep = "")
+    png(filename = filename, width = 16, height = 16)
+    par(mfrow = c(1, 1), mar = c(0,0,0,0))
+    plot(-1, -1, xlim = c(0, 1), ylim = c(0, 1), axes = FALSE)
+    text(x = 0.5, y = 0.5, family = fuentes[i], j, cex = 1.6)    
+    dev.off()
+  }
+}
+```
+
+
+En la figura \ref{fig:imagenes_8} se muestra como ejemplo las 130 imágenes del dígito 8 que utilizaremos para entrenar y validar el modelo de Máquinas de Vector Soporte. 
+
+```{r label = 'imagenes_8', echo = FALSE, eval = TRUE, fig.width = 7, fig.height = 8.8, fig.align = 'center', fig.cap = '130 gráficos del número ocho con cada fuente.', fig.lp = 'fig:', dev = 'png',  dpi = 144}
+fuentes <- fonts() # extrafont
+j <- 8
+par(mfrow = c(13, 10), mar = c(0.1, 0.1, 1, 0.1))
+for (i in 1:130) {
+  plot(-1, -1, xlim = c(0, 1), ylim = c(0, 1), axes = FALSE)
+  text(x = 0.5, y = 0.5, family = fuentes[i], j, cex = 3)    
+  mtext(text = substring(fuentes[i], 1, 12), side = 3, cex = 0.6, col = gray(0.4))
+}
+```
+
+Dibujamos el perfil promedio de cada dígito. Las figuras, generadas a 16x16 pixeles de resolución nos dan un total de 256 variables en las que tenemos los valores *white* o *black*, una variable por cada píxel de la imagen. Nosotros pasaremos estos valores a -1 y 1. Cuanto mayor sea la resolución de la imagen mayor será también el número de variables. Las diferencias claras entre los distintos números, que hace que seamos capaces de distinguirlos, tienen que verse también en el perfil generado por las 256 variables y estas diferencias son las que tiene que encontrar la Máquina de Vector Soporte. En la figura \ref{fig:perfiles_digitos} se muestran la distribución promedio de cada píxel para cada dígito.
+
+
+```{r label = 'lvalores', echo = FALSE, eval = FALSE}
+lvalores <- vector(mode = "list", 
+                   length = 10)
+
+for (j in 0:9) {
+  valores <- data.frame()
+  for (i in fuentes) {
+    datos <- read.table(file = paste("./figures/numeros/", j, "/", i, ".txt", sep = ""), 
+                        skip = 1, 
+                        comment.char = "", 
+                        sep = ":", 
+                        stringsAsFactors = FALSE)
+    colores <- substring(text = datos[, 2], first = 26, last = 30)
+    aux <- ifelse(colores == "white", -1, 1)
+    valores <- rbind(valores, as.data.frame(t(aux)))
+  }  
+  lvalores[[j + 1]] <- valores
+}
+save(lvalores, 
+     file = "../output/rdata/lvalores.Rdata")
+```
+
+```{r label = 'perfiles_digitos', echo = FALSE, fig.alig = 'center', fig.width = 7, fig.height = 8.8, fig.lp = 'fig:', dev = c('pdf', 'png'), dpi = 144, fig.cap = 'Distribución.'}
+
+load("../output/rdata/lvalores.Rdata")
+
+par(mfrow = c(10, 1), 
+    mar = c(2.8, 0.5, 1.4, 0.5))
+for (j in 1:10) {
+  X <- apply(X = lvalores[[j]], MARGIN = 2, FUN = "mean")
+  plot(X, 
+       type = "h", main = paste("número", j-1, sep = " "), 
+       col = ifelse(X < 0, "red3", "green4"),
+       xaxt = "n", yaxt = "n", 
+       ylab = "", xlab = "", bty = "n")
+  axis(1, at = seq(0, 256, by = 16), labels = seq(0, 256, 16))
+}
+```
+
+
+
+```{r label = 'training_validation', echo = FALSE, eval = TRUE}
+digito1 <- rep(seq(0, 9, 1), each = 65)
+digito2 <- rep(seq(0, 9, 1), each = 65)
+digito3 <- rep(seq(0, 9, 1), each = 10)
+
+datos1 <- data.frame()
+datos2 <- data.frame()
+datos3 <- data.frame()
+for (i in 1:10) {
+  aux <- lvalores[[i]][1:65, ]
+  rownames(aux) <- paste(fuentes[1:65],"_",i-1, sep = "")
+  datos1 <- rbind(datos1, aux)
+  
+  aux <- lvalores[[i]][66:130, ]
+  rownames(aux) <- paste(fuentes[66:130],"_",i-1, sep = "")
+  datos2 <- rbind(datos2, aux)
+  
+  aux <- lvalores[[i]][1:10, ]
+  rownames(aux) <- paste(fuentes[1:10],"_",i-1, sep = "")
+  datos3 <- rbind(datos3, aux)
+}
+entrenamiento <- cbind(datos1, digito = digito1)
+validacion <- cbind(datos2, digito = digito2)
+prueba <- cbind(datos3, digito = digito3)
+
+entrenamiento$digito <- factor(entrenamiento$digito, levels = seq(0, 9, 1))
+validacion$digito <- factor(validacion$digito, levels = seq(0, 9, 1))
+prueba$digito <- factor(prueba$digito, levels = seq(0, 9, 1))
+
+rm(datos1, datos2, datos3, digito1, digito2, digito3)
+
+save(entrenamiento, validacion, prueba, file = "../output/rdata/valores.Rdata")
+
+```
+
+## Support Vector Machine Learning
+
+Como ya hemos comentado, las máquinas de vector soporte dependen de la función kernel que consideremos. Las más usuales son las funciones kernel lineales y las funciones kernel de base radial [@JSSv015i09]. Con los datos de las 1300 imágenes vamos a construir diferentes Máquinas de Vector Soporte utilizando diferentes argumentos y parámetros y compararemos sus resultados.
+
+### Linear Support Vector Machine
+
+Estimamos la exactitud de una máquina de vector soporte con función kernel lineal. La forma de atacar este problema por parte de la librería `caret` [@JSSv028i05; @caret2015] es evaluando cada punto de la malla generada por los diferentes valores de los parámetros *sigma* ($\sigma$) y *costo* ($c$). Una vez  evaluados todos los paŕametros elegiremos aquél par (*sigma*, *costo*) que haya maximizado la exactitud de las predicciones. Valoramos la construcción del modelo considerando 5 repeticiones con el 80% del total de la muestra (`trainControl(method = "cv", p = 0.8, digito = 5, repeats = 5, search = "grid")`). Para evaluar un modelo de máquinas de vector soporte con kernel lineal, le pasamos a la función `train` el argumento `method = "svmLinear2"` que será evaluada internamente con las funciones del paquete `kernlab` [@kernlab2004].
+
+En metabolómica, es habitual realizar diferentes transformaciones en los datos para conseguir distribuciones normales o distribuciones tipificadas entre otras muchas [@vandenBerg2006]. La función `train` permite considerar diferentes transformaciones sobre los datos. Las más comunes son:
+   
+  * **Datos originales**. Trabajaremos con los datos originales, sin ningún tipo de preprocesado previo utilizando el comando `preProcess = NULL`.
+
+  * **Datos escalados y centrados**. Si las variables tienen diferentes escalas y variabilidad es interesante considerar el centrado de variables y su escalado, para que no influya en el análisis. Utilizaremos el comando `preProcess = c("scale", "center")`.
+  
+  \begin{equation}
+  X^{\prime} = \dfrac{X -\bar{X}}{\sigma_{X}}
+  \end{equation}
+  
+  * **Datos transformados según potencias *Box-Cox***. Las transformacion es *Box-Cox* son una familia de transformaciones cuya finalidad principal es normalizar una variable. El comando que podemos utilizar es `preProcess = "BoxCox"`.
+  
+  \begin{equation}
+  y_{i}^{(\lambda )}={\begin{cases}{\dfrac {y_{i}^{\lambda }-1}{\lambda }}&{\text{si }}\lambda \neq 0,\\[8pt]\ln {(y_{i})}&{\text{si }}\lambda =0,\end{cases}}
+  \end{equation}
+  
+
+```{r label = 'jitter_values', echo = FALSE, eval = TRUE}
+load(file = "../output/rdata/valores.Rdata")
+for (i in 1:256) {
+  prueba[, i] <- jitter(prueba[, i], amount = 0.3) # Quitamos valores constantes
+  entrenamiento[, i] <- jitter(entrenamiento[, i], amount = 0.3) # Quitamos valores constantes
+  validacion[, i] <- jitter(validacion[, i], amount = 0.3) # Quitamos valores constantes
+}
+save(entrenamiento, validacion, prueba, file = "../output/rdata/valores.Rdata")
+```
+
+```{r label = 'load_valores', echo = FALSE}
+load(file = "../output/rdata/valores.Rdata")
+```
+
+
+```{r label = 'imagen_digitos_jitter', echo = FALSE, fig.align = 'center', fig.width = 7, fig.height = 3.5, fig.cap = 'Ejemplo  de los dígitos a reconocer tras haber añadido ruido a la imagen.', fig.lp = 'fig:', dev = c('pdf', 'png'), dpi = 144}
+grises <- colorRampPalette(colors = rev(c(gray(0), gray(0.1), gray(0.2), 
+                                          gray(0.3), gray(0.4), gray(0.5), 
+                                          gray(0.6), gray(0.7), gray(0.8), 
+                                          gray(0.9), gray(1))))(10)
+
+par(mfrow = c(2, 5), mar = c(0.2, 0.2, 0.2, 0.2))
+
+for (i in seq(1, 91, by = 10)) {
+  z <- as.matrix(matrix(unlist(prueba[i, 1:256]), ncol = 16))
+  zp <- z
+  for (i in 1:16) {
+    zp[, i] <- z[, 17 - i]
+  }
+  graphics::image(as.matrix(zp), 
+                  col = grises,
+                  axes = FALSE,
+                  xlab = "", ylab = "", bty = "n"
+                  )  
+}
+
+
+```
+
+```{r label = 'heatmap_entrenamiento', echo = FALSE, eval = FALSE, fig.align = 'center', fig.width = 9, fig.height = 7, fig.cap = '', fig.lp = 'fig:', dev = c('pdf', 'png'), dpi = 144}
+X <- t(entrenamiento[, 1:256])
+
+annotation_col <- data.frame(digito = entrenamiento[, "digito"])
+annotation_col$digito <- factor(annotation_col$digito, 
+                            levels = c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"),
+                            labels = c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"))
+rownames(annotation_col) <- colnames(X)
+
+digito <- brewer.pal(n = 10, name = "Set3")
+names(digito) <- c("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+ann_colors <- list(digito = digito)
+
+pheatmap(X,
+         color = colorRampPalette(c("white", "black"))(50),
+         show_rownames = FALSE,
+         show_colnames = FALSE,
+         cluster_rows = FALSE,
+         cluster_cols = FALSE,
+         annotation_col = annotation_col,
+         annotation_colors = ann_colors,
+         annotation_legend = TRUE)
+```
+
+La figura \ref{fig:pca_entrenamiento} muestra la proyección sobre las dos primeras componentes las observaciones que utilizaremos para entrenar al modelo (65 observaciones de cada dígito). Vemos que hay una separación evidente entre algunos dígitos y otros están juntos. Comprobamos que las observaciones de los dígitos 1 y 7 están cercanas, así como las observaciones de los dígitos 0, 6 y 8.
+
+Estas diferencias visibles en el Análisis de Componentes Principales ya nos hacen intuir que un modelo SVM puede tener un gran capacidad de pronóstico. El código en `R` para generar el PCA puede consultarse en el código \ref{cod:pca} en el anexo.
+
+```{r label = 'pca_entrenamiento', echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = 'Análisis de Componentes Principales con 100 observaciones por cada dígito. Comprobamos que las observaciones de los dígitos 1 y 7 están cercanas, así las observaciones de los dígitos 0, 6 y 8. Además, estos dos grupos de observaciones están situados en grupos opuestos en la primera componente, así que podríamos interpretar que la primera componente está relacionada con el volumen del número.', fig.lp = 'fig:', dev = c('pdf', 'png'), dpi = 144, out.width = '95%',}
+mipc <- prcomp(entrenamiento[, 1:256])
+mipch <- c(21:25,21:25)
+plot(predict(mipc)[, 1:2], 
+     xlim = c(-10, 10),
+     ylim = c(-10, 10),
+     pch = rep(mipch, each = 65),
+     col = gray(0.1), #rep(rainbow(10), each = 65),
+     bg = rep(rainbow(10), each = 65),
+     xaxt = "n", yaxt = "n",
+     xlab = "Componente Principal 1",
+     ylab = "Componente Principal 2")
+axis(1)
+axis(2, las = 2)
+abline(v = pretty(c(-10, 10)), lty = 3, col = "gray")
+abline(h = pretty(c(-10, 10)), lty = 3, col = "gray")
+
+legend(x = "topright", legend = seq(0, 9), pch = c(21:25,21:25), 
+       col = gray(0.1), #rainbow(10),
+       pt.bg = rainbow(10), bty = "n",
+       ncol = 5,cex = 0.7,
+       title = "dígito")
+```
+
+Vamos a aplicar la función `train()` con el mínimo número de argumentos:
+
+* **x**: Matriz de datos.
+
+* **y**: Clasificación de las muestras.
+
+* **method**: Una cadena de texto en la que se especifica el modelo de clasificación o regresión a considerar. En nuestro caso vamos a utilizar `svmLinear2` que es un *kernel* disponible desde la librería `e1071`.
+
+```{r label = 'modelo_svmlinear2_paso1', echo = TRUE, eval = params$evaluar_modelos}
+X <- entrenamiento[, 1:256]
+Y <- entrenamiento$digito
+modelo <- train(x = X,
+                y = Y,
+                method = "svmLinear2")
+```
+
+La función `train()` devuelve un objeto de la clase `train` que es una lista que contiene los siguientes elementos:
+
+* **method**: El modelo elegido. Es el que hemos pasado como argumento.
+
+* **modelType**: Un identificador del tipo de modelo.
+
+* **results**: Un `data.frame` de datos la tasa de error de entrenamiento y los valores de los parámetros de ajuste.
+
+* **bestTune**: Un `data.frame` de datos con los parámetros finales.
+
+* **metric**: Una cadena de texto que especifica qué métrica de resumen se utilizará para seleccionar el modelo óptimo.
+
+* **control**: La lista de parámetros de control.
+
+* **preProcess**: `NULL` o un objeto de clase `preProcess`.
+
+* **finalModel**: Un objeto de ajuste utilizando los mejores parámetros.
+
+* **trainingData**: Un `data.frame`.
+
+* **resample**: Un `data.frame` con columnas para cada métrica de rendimiento. Cada fila corresponde a cada re-muestreo. Si se solicitan los métodos de validación cruzada o de validación fuera de bolsa, estos valores serán `NULL`. 
+
+* **perfNames**: Un vector de caracteres de métricas de rendimiento que se producen mediante la función `summary()`.
+
+* **maximize**: Un valor lógico que proviene de los argumentos de la función.
+
+* **yLimits**: El rango de los resultados del conjunto de entrenamiento.
+
+Primero, entrenamos una SVM con un *kernel* lineal. En este caso utilizamos la función `svmLinear2` del paquete `e1071`. En [modelos disponibles](http://topepo.github.io/caret/available-models.html) se pueden consultar los modelos disponibles. También se puede ejecutar el comando `names(getModelInfo())`. Los modelos específicos para construir Máquinas de Vector Soporte pueden consultarse en [train models](http://topepo.github.io/caret/train-models-by-tag.html#support-vector-machines).
+
+En la tabla \ref{tab:train_models} se muestran 16 descritos los métodos para trabajar con la función `train()` para construir Máquinas de Vector Soporte.
+
+
+```{r label = 'tab:train_models', echo = FALSE, results = 'asis'}
+train_models <- read.table("../data/modelos.txt", sep = "\t", header = TRUE)
+
+colnames(train_models) <- c("Model", "Method", "Type", "Libraries", "Tuning parameters")
+
+xtabla <- xtable(train_models, 
+       caption = "Modelos disponibles para construir Máquinas de Vector Soporte con la función {\\it train()}.",
+       label = "tab:train_models",
+       align = c("p{0.1cm}p{5cm}p{5cm}p{3cm}p{2cm}p{3cm}"))
+
+print(xtabla, 
+      hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), 
+      comment = FALSE,
+      scalebox = 0.7,
+      include.rownames = FALSE
+      )
+```
+
+```{r label = 'save_modelo_svmlinear2_paso1', echo = FALSE, eval = params$evaluar_modelos}
+save(modelo, file = "../output/models/modelo_svmlinear2_paso1.Rdata")
+```
+
+```{r label = 'load_modelo_svmlinear2_paso1', echo = FALSE, eval = TRUE}
+load(file = "../output/models/modelo_svmlinear2_paso1.Rdata")
+```
+
+Tras aplicar la función `train()` sobre nuestros datos obtenos el objeto `modelo`.
+
+```{r label = 'print_modelo_svmlinear2_paso1', echo = TRUE}
+print(modelo)
+```
+
+El modelo con estructura de SVM guardado en `modelo` es una lista con varios argumentos.
+
+```{r label = 'arguments_modelo_svmlinear2_paso1', echo = TRUE}
+modelo$method
+modelo$modelType
+modelo$results
+modelo$bestTune
+modelo$call
+modelo$metric
+names(modelo$control)
+modelo$preProcess
+modelo$finalModel
+```
+
+En la tabla \ref{tab:entrenamiento_modelo_svm_linear2_paso1} se muestra la matriz de confusión entre los dígitos observados (columnas) y los dígitos pronosticados (filas) de los 1000 dígitos de los datos utilizados en el entrenamiento del modelo.
+
+```{r label = 'tab:entrenamiento_modelo_svm_linear2_paso1', echo = FALSE, eval = TRUE, results = 'asis'}
+tabla <- table(Pronostico = predict(modelo), 
+               Referencia = rep(seq(0, 9, 1), each = 65))
+
+xtabla <- xtable(tabla, 
+                 label = "tab:entrenamiento_modelo_svm_linear2_paso1", 
+                 caption = "Matriz de confusión entre los dígitos observados y los dígitos pronosticados por el modelo.")
+
+print(xtabla, 
+      hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), 
+      comment = FALSE,
+      scalebox = 0.8)
+```
+
+En la tabla \ref{tab:validacion_modelo_svm_linear2_paso1} se muestra la matriz de confusión entre los dígitos observados (columnas) y los dígitos pronosticados (filas) de los 300 dígitos de los datos utilizados en la validación del modelo.
+
+```{r label = 'tab:validacion_modelo_svm_linear2_paso1', echo = FALSE, eval = TRUE, results = 'asis'}
+pron <- predict(modelo, newdata = validacion[, 1:256])
+refe <- rep(seq(0, 9, 1), each = 65)  
+
+tabla <- table(
+  Pronostico = pron,
+  Referencia = refe
+)
+
+xtabla <- xtable(tabla,
+                 label = "tab:validacion_modelo_svm_linear2_paso1",
+                 caption = "Matriz de confusión entre los dígitos de validación y los dígitos pronosticados por el modelo.")
+
+print(xtabla, 
+      hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), 
+      comment = FALSE,
+      scalebox = 0.8)
+
+filtro <- pron != refe
+predicciones_fallidas <- pron[filtro]
+failcases <- strsplit(rownames(validacion)[filtro], "_")
+
+```
+
+Observamos que hay una tasa de error en la validación del `r format(sum(filtro) / 300, digits = 3)`.
+
+```{r label = 'digitos_fallados_modelo_svm_linear2_paso1_a', echo = FALSE, eval = TRUE, fig.align = 'center', fig.width = 5, fig.height = 7, fig.cap = 'Casos en los que ha fallado el modelo a la hora de interpretar un dígito. El dígito del centro (negrita) representa el número que la Máquina de Vector Soporte no ha sabido interpretar. El dígito de la esquina inferior (gris) representa el dígito que ha predicho el modelo.', fig.lp = 'fig:', dev = 'png', dpi = 216}
+
+par(mfrow = c(7, 4), mar = c(0.2,0.2,0.2,0.2))
+for (i in 1:length(failcases)) {
+  plot(-1, -1, xlim = c(0, 1), ylim = c(0, 1), axes = FALSE)
+  text(x = 0.5, y = 0.5, family = failcases[[i]][1], failcases[[i]][2], cex = 5)      
+  text(x = 0.1, y = 0.1, predicciones_fallidas[i], cex = 2, col = "gray")      
+}
+
+```
+
+```{r label = 'digitos_fallados_modelo_svm_linear2_paso1_b', echo = FALSE, eval = TRUE, fig.align = 'center', fig.width = 5, fig.height = 7, fig.cap = 'Casos en los que ha fallado el modelo a la hora de interpretar un dígito. Los dígitos se representan tal y como se ven en las imágenes.', fig.lp = 'fig:', dev = 'png', dpi = 216}
+par(mfrow = c(7, 4), mar = c(0.2, 0.2, 0.2, 0.2))
+for (k in 1:length(failcases)) {
+  
+  pos <- which(fuentes == failcases[[k]][1]) - 65
+  pos <- as.numeric(failcases[[k]][2])*65 + pos
+  
+  z <- as.matrix(matrix(unlist(validacion[pos, 1:256]), ncol = 16))
+  zp <- z
+  for (i in 1:16) {
+    zp[, i] <- z[, 17 - i]
+  }
+  graphics::image(as.matrix(zp), 
+                  col = grises,
+                  axes = FALSE,
+                  xlab = "", ylab = "", bty = "n"
+                  )  
+}
+```
+
+Utilizamos la función `varImp()` del paquete `caret`. Esta función tiene como argumento la salida de la función `train`, es decir, el modelo construido. La salida de la función `varImp()` depende del modelo que sele haya pasado como argumento. En nuestro caso la salida es una lista de tres elementos:
+
+* **importance**: Es un `data.frame` con tantas filas como variables y tantas columnas como clases a separar que contiene un índice de importancia para discriminar entre clases que va de 0 a 100 (`scaled = TRUE`) .
+
+* **model**: Modelo que permite calcular el índice de importancia entre clases. Por defecto se utiliza un análisis ROC.
+
+* **calledFrom**: Nos informa de la llamada a la función.
+
+En la figura \ref{fig:varimp_modelo_1_modelo_svmlinear2_paso1} se muestra el gráfico por defecto al dibujar el objeto devuelto por la función  `varImp()`.
+
+```{r label = 'varimp_modelo_1_modelo_svmlinear2_paso1', echo = TRUE, fig.align = 'center', fig.width = 6, fig.height = 9, fig.cap = 'Las 20 variables más importantes para la discriminación de dígitos, es decir, qué pixeles son más importantes para clasificar.', fig.pos = 'h', fig.lp = 'fig:', eval = TRUE}
+a <- varImp(modelo)
+colnames(a$importance) <- paste("dígito", 
+                                seq(0, 9), 
+                                sep = " ")
+plot(a, top = 20, 
+     xlab = "Variables (píxeles) más importantes")
+```
+
+En la figura \ref{fig:varimp_modelo_2_modelo_svmlinear2_paso1} representamos la importancia de cada variable como si fueran los píxeles de una imagen. Como era evidente, los márgenes de las imágenes no son importantes para discriminar entre los diferentes dígitos (blanco y gris) y si son más importantes los píxeles centrales de las imágenes (negro).
+
+```{r label = 'varimp_modelo_2_modelo_svmlinear2_paso1', echo = FALSE, fig.align = 'center', fig.width = 7, fig.height = 5.7, fig.cap = 'Los píxeles más importantes a la hora de tomar una decisión. En blanco se señalan los píxeles menos significativos y en negro están marcados los más significativos en promedio para discriminar entre dígitos.', fig.pos = 'h', fig.lp = 'fig:', eval = TRUE}
+
+z <- rowSums(a$importance)/1000
+z <- matrix(z, ncol = 16, byrow = FALSE)
+zp <- z
+for (i in 1:16) zp[, i] <- z[, 17 - i]
+
+layout(matrix(c(rep(1, 9), rep(2, 2)), nrow = 1))
+
+par(mar = c(0, 0, 0, 0))
+graphics::image(as.matrix(zp), 
+                # col = grises,
+                col = colorRampPalette(colors = c("white", "black"))(100),
+                axes = FALSE,
+                xlab = "", ylab = "", bty = "n")  
+
+par(mar = c(0, 0, 1, 3))
+plot(c(0, 1), c(0, 1), 
+     type = "n",
+     axes = FALSE,
+     xlim = c(0, 1),
+     ylim = c(0, 1),
+     main = "importance")
+h <- seq(0, 1, length = 100)
+
+for (i in 2:100) {
+  rect(xleft = 0.5, 
+       ybottom = h[i-1], 
+       xright = 1, 
+       ytop = h[i], 
+       col = colorRampPalette(colors = c("white", "black"))(100)[i],
+       border = NA)
+}
+axis(side = 4, seq(0, 1, by = 0.1), labels = seq(0, 1, by = 0.1), las = 2)
+
+```
+
+\clearpage
+\newpage
+
+### Linear Support Vector Machine. Modificación de argumentos y parámetros
+
+En el ejemplo que hemos realizado no hemos modificado ningún parámetro y todos los argumentos necesarios han sido los que vienen por defecto. En el siguiente ejemplo añadimos varios párametros más:
+
+* **preProcess**: Argumento que indica si existe algún preprocesamiento previo de los datos. En este casos escalamos y centramos las variables. Dada la naturaleza de los datos este proceso no va a mejorar los resultados previos, pero con otro tipo de datos puede ser interesante. Por defecto, este valor es `NULL`.
+
+* **trControl**: Argumento al que se le puede pasar una lista que controla el proceso de búsqueda del modelo. En este caso pasamos los siguientes controles:
+
+    * **method = cv**: Método de remuestreo. Se pueden elegir entre varios métodos, algunos específicos del modelo a buscar: svm, rf, knn, ...
+  
+    * **p = 0.8**: Porcentaje de muestras utilizadas en el entrenamiento de la validación cruzada.
+  
+    * **number = 5**: Número de iteraciones o número de subgrupos de validación (*k*-fold).
+  
+    * **repeats = 5**: Repetición de *k*-fold de la validación cruzada. En este caso tomamos *k* = 5.
+
+* **tuneLength**: Número de veces que se ejecutará la búsqueda de un modelo variando los parámetros propios de la función *kernel*. En este caso, se variará el parámetro *cost* del *kernel* lineal.
+
+* **metric**: Argumento que le indica a la función cuál va a ser el criterio para elegir los valores óptimos del modelo. En el caso lineal, nos mostrará cuál es el costo óptimo para el cuál se alcanzará la exactitud máxima. Las métricas disponibles son:
+
+    * **RMSE** y $R^2$ para regresión.
+    
+    * **accuracy** y **kappa** para clasificación.
+
+* **maximize**: Valor lógico que indica a la función si debe buscar el máximo o el mínimo de la métrica. Por ejemplo, buscaremos minimizar el *RMSE* en regresión pero maximizaremos el *Accuracy* en clasificación.
+
+Se pueden consultar las opciones de [remuestreo](http://topepo.github.io/caret/subsampling-for-class-imbalances.html).
+
+
+El siguiente código en `R` construye una Máquina de Vector Soporte realizando un pre-procesado de los datos escalándolos y centrándolos. Además, utiliza un control de validación cruzada, en el que se usa el 80% de las muestras
+
+```{r label = 'modelo_svmlinear2_paso2', echo = TRUE, eval = params$evaluar_modelos}
+X <- entrenamiento[, 1:256]
+Y <- entrenamiento$digito
+
+modelo <- train(x = X,
+                y = Y,
+                preProcess = c("scale", "center"),
+                trControl = trainControl(method = "cv",
+                                         p = 0.8, 
+                                         number = 5,
+                                         repeats = 5),
+                method = "svmLinear2",
+                tuneLength = 10,
+                maximize = TRUE,
+                metric = "Accuracy")     
+```
+
+```{r label = 'save_modelo_svmlinear2_paso2', echo = FALSE, eval = params$evaluar_modelos}
+save(modelo, file = "../output/models/modelo_svmlinear2_paso2.Rdata")
+```
+
+```{r label = 'load_modelo_svmlinear2_paso2', echo = FALSE, eval = TRUE}
+load(file = "../output/models/modelo_svmlinear2_paso2.Rdata")
+```
+
+Tras aplicar la función `train()` sobre nuestros datos obtenos el objeto `modelo`.
+
+```{r label = 'print_modelo_svmlinear2_paso2', echo = TRUE, eval = TRUE}
+print(modelo)
+```
+
+En la tabla \ref{tab:validacion_modelo_svm_linear2_paso2} se muestra la matriz de confusión entre los dígitos observados (columnas) y los dígitos pronosticados (filas) de los 300 dígitos de los datos utilizados en la validación del modelo.
+
+```{r label = 'tab:validacion_modelo_svm_linear2_paso2', echo = FALSE, eval = TRUE, results = 'asis'}
+pron <- predict(modelo, newdata = validacion[, 1:256])
+refe <- rep(seq(0, 9, 1), each = 65)  
+
+tabla <- table(
+  Pronostico = pron,
+  Referencia = refe
+)
+
+xtabla <- xtable(tabla,
+                 label = "tab:validacion_modelo_svm_linear2_paso2",
+                 caption = "Matriz de confusión entre los dígitos de validación y los dígitos pronosticados por el modelo.")
+
+print(xtabla, 
+      hline.after = c(-1, -1, 0, nrow(xtabla), nrow(xtabla)), 
+      comment = FALSE,
+      scalebox = 0.8)
+
+filtro <- pron != refe
+predicciones_fallidas <- pron[filtro]
+failcases <- strsplit(rownames(validacion)[filtro], "_")
+
+```
+
+
+```{r label = 'digitos_fallados_modelo_svm_linear2_paso2_a', echo = FALSE, eval = TRUE, fig.align = 'center', fig.width = 5, fig.height = 7, fig.cap = 'Casos en los que ha fallado el modelo a la hora de interpretar un dígito. El dígito del centro (negrita) representa el número que la Máquina de Vector Soporte no ha sabido interpretar. El dígito de la esquina inferior (gris) representa el dígito que ha predicho el modelo.', fig.lp = 'fig:', dev = 'png'}
+
+par(mfrow = c(7, 5), mar = c(0.2,0.2,0.2,0.2))
+for (i in 1:length(failcases)) {
+  plot(-1, -1, xlim = c(0, 1), ylim = c(0, 1), axes = FALSE)
+  text(x = 0.5, y = 0.5, family = failcases[[i]][1], failcases[[i]][2], cex = 5)      
+  text(x = 0.1, y = 0.1, predicciones_fallidas[i], cex = 2, col = "gray")      
+}
+
+```
+
+```{r label = 'digitos_fallados_modelo_svm_linear2_paso2_b', echo = FALSE, eval = TRUE, fig.align = 'center', fig.width = 5, fig.height = 7, fig.cap = 'Casos en los que ha fallado el modelo a la hora de interpretar un dígito. Los dígitos se representan tal y como se ven en las imágenes.', fig.lp = 'fig:', dev = 'png'}
+par(mfrow = c(7, 5), mar = c(0.2, 0.2, 0.2, 0.2))
+for (k in 1:length(failcases)) {
+  
+  pos <- which(fuentes == failcases[[k]][1]) - 65
+  pos <- as.numeric(failcases[[k]][2])*65 + pos
+  
+  z <- as.matrix(matrix(unlist(validacion[pos, 1:256]), ncol = 16))
+  zp <- z
+  for (i in 1:16) {
+    zp[, i] <- z[, 17 - i]
+  }
+  graphics::image(as.matrix(zp), 
+                  col = grises,
+                  axes = FALSE,
+                  xlab = "", ylab = "", bty = "n"
+                  )  
+}
+```
+
+
+Observamos que hay una tasa de error en la validación del `r format(sum(filtro) / 300, digits = 3)`.
+
+\clearpage
+
+## Conclusiones
+
+### Ventajas
+
+* Las Máquinas de Vector Soporte trabajan de forma eficiente con grandes cantidades de datos.
+
+* Permiten realizar cribados iniciales de variables evaluando la importancia de cada una de ellas en la predicción de clases.
+
+### Desventajas
+
+* *A priori* no existe un *kernel* óptimo, dependerá de la naturaleza de los datos con los que estemos trabajando y siempre será recomendable el uso de varios *kernel* y comparar sus resultados.
+
+* La experiencia nos lleva a pensar que las Máquinas de Vector Soporte tienden a sobreajustar los datos y siempre es conveniente realizar una validación del modelo.
+
+* Los modelos que se obtienen al aplicar una Máquina de Vector Soporte suelen ser muy opacos y de dificil interpretación.
+
+
+```{r label = 'save_svm', echo = FALSE, eval = params$salvar_rdata}
+filename <- paste("../output/rdata/", format(Sys.time(), "%Y%m%d%H%M%S"), ".Rdata", sep = "")
+save(list = ls(), file = filename)
+```
+
+\clearpage
+\newpage
+
+# Versión
+
+```{r label = 'sessionInfo', echo = FALSE, results = 'asis', eval = TRUE}
+toLatex(sessionInfo())
+```
+
+
+# Bibliografía

@@ -1,0 +1,486 @@
+\clearpage
+\newpage
+
+## Random Forest
+
+Los bosques aleatorios, *random forest*, mejoran la precisión predictiva mediante la generación de un gran número de árboles mediante técnicas bootstrap (basado en muestras aleatorias de las variables), la clasificación de un caso de uso de cada árbol en este nuevo *bosque*, y decidir un resultado final predicho mediante la combinación de los resultados a través de todos los árboles (mayoría de votos en la clasificación). La técnica de random forest de Breiman y de Cutler [@Breiman2001] se implementa en R a través del paquete de randomForest [@randomForest2002].
+
+Valoramos la construcción del modelo considerando 5 repeticiones con el 80% del total de la muestra (`trainControl(method = "cv", p = 0.8, number = 5, repeats = 5, search = "grid")`). Para evaluar un modelo de máquinas de vector soporte con kernel lineal, le pasamos a la función `train` el argumento `method = "rf"` que será evaluada internamente con las funciones del paquete `randomForest` [@randomForest2002].
+
+En metabolómica, es habitual realizar diferentes transformaciones en los datos para conseguir distribuciones normales o distribuciones tipificadas entre otras muchas [@vandenBerg2006]. Vamos a construir las máquinas de vector soporte con tres tipos de procesado a los datos:
+
+* Datos originales, `preProcess = NULL`.
+* Datos escalados y centrados, `preProcess = c("scale", "center")`.
+* Datos transformados según potencias *BoxCox*, `preProcess = "BoxCox"`.
+
+Tendremos entonces nueve modelos que compararemos para ver cuál es el tipo de transformaciones y qué asignación de valores perdidos es la más conveniente para obtener la máxima exactitud. Este proceso lo repetiremos para intentar clasificar los cuatro tipos de diagnóstico, la agrupación en tres diagnósticos y la agrupación en dos diagnósticos.
+
+También estudiaremos el parámetro `mtry` que es el número de variables consideradas en el modelo en cada división. Nosotros vamos a estudiar la exactitud de los modelos considerando diferentes conjuntos de variables, desde únicamente 10 hasta 250. Otra opción que hemos añadido es la de `proximity = TRUE`, es decir, el algoritmo guardará una medida de proximidad entre observaciones. Utilizaremos esta medida para realizar las figuras \ref{fig:rf_proximity_4}, \ref{fig:rf_proximity_3} y \ref{fig:rf_proximity_2} donde presentamos cada observación, coloreada según al grupo que pertenezca. Es una forma de ver la separación entre observaciones y grupos.
+
+```{r, echo = TRUE, eval = FALSE}
+rfGrid <- data.frame(mtry = seq(10, 250, by = 10))
+
+train(DIAGNO ~ .,
+  data = DATA,
+  method = "rf",
+  ntree = 5000,
+  proximity = TRUE,
+  preProcess = procesado[[j]],
+  trControl = trainControl(method = "cv",
+                          p = 0.8, number = 5,
+                          repeats = 5),
+  metric = "Accuracy",
+  tuneGrid = rfGrid,
+  maximize = TRUE)
+```
+
+
+```{r, echo = FALSE, eval = FALSE}
+rf.train.4 <- vector("list", 9)
+rf.train.3 <- vector("list", 9)
+rf.train.2 <- vector("list", 9)
+
+procesado <- list(NULL, c("scale", "center"), "BoxCox")
+rfGrid <- data.frame(mtry = seq(10, 250, by = 10))
+CLASS <- ACM$DIAGNO
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    rf.train.4[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+                                       data = DATA,
+                                       method = "rf",
+                                       ntree = 5000,
+                                       proximity = TRUE,
+                                       preProcess = procesado[[j]],
+                                       trControl = trainControl(method = "cv",
+                                                                p = 0.8, number = 5,
+                                                                repeats = 5),
+                                       metric = "Accuracy",
+                                       tuneGrid = rfGrid,
+                                       maximize = TRUE)  
+  }  
+}
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    rf.train.3[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+                                       data = DATA,
+                                       method = "rf",
+                                       ntree = 5000,
+                                       proximity = TRUE,
+                                       preProcess = procesado[[j]],
+                                       trControl = trainControl(method = "cv",
+                                                                p = 0.8, number = 5,
+                                                                repeats = 5),
+                                       metric = "Accuracy",
+                                       tuneGrid = rfGrid,
+                                       maximize = TRUE)  
+  }  
+}
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    rf.train.2[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+                                       data = DATA,
+                                       method = "rf",
+                                       ntree = 5000,
+                                       proximity = TRUE,
+                                       preProcess = procesado[[j]],
+                                       trControl = trainControl(method = "cv",
+                                                                p = 0.8, number = 5,
+                                                                repeats = 5),
+                                       metric = "Accuracy",
+                                       tuneGrid = rfGrid,
+                                       maximize = TRUE)  
+  }  
+}
+
+
+save(rf.train.4, rf.train.3, rf.train.2, file = "/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/rf.train.Rdata") 
+
+```
+
+
+
+```{r label = 'error_rate', echo = FALSE}
+
+load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/rf.train.Rdata")
+
+salida <- data.frame()
+for (i in 1:9) {
+  aux <- data.frame(
+    t4 = rf.train.4[[i]]$finalModel$err.rate[5000,1],
+    t3 = rf.train.3[[i]]$finalModel$err.rate[5000,1],
+    t2 = rf.train.2[[i]]$finalModel$err.rate[5000,1])  
+  
+  salida <- rbind(salida, aux)
+  
+}
+```
+
+En la tabla \ref{tab:error_rate} se muestran las tasas de error cometidas por los modelos considerando el tipo de procesado (Sin procesado, escalado y centrado y transformaciones BoxCox) y la técnica de imputación utilizada en cada caso (mínimo, beta y correlación). No se observa diferencias en la tasa de error en función del procesado o de la técnica de imputación, situándose en torno al 40% cuando intentamos clasificar cuatro grupos, en torno al 3% cuando intentamos clasificar tres grupos y en torno al 18% cuando intentamos clasificar dos grupos.
+
+```{r label = 'tab:error_rate', echo = FALSE, results = 'asis'}
+salida <- cbind(
+  Procesado = c("", "Sin procesado", "", 
+                "", "Escalado y centrado", "", 
+                "", "BoxCox", ""),
+  Imputación = rep(c("mínimo", "beta", "correlación"), 3),
+  salida)
+
+colnames(salida)[3:5] <- c("4 grupos", "3 grupos", "2 grupos")
+
+xtabla <- xtable(salida, caption = "Tasa de error del algoritmo según el tipo de procesado, el tipo de imputación y el número de clases a clasificar.", digits = c(0,0,0,3,3,3), label = 'tab:error_rate')
+
+print(xtabla, hline.after = c(-1, -1, 0, 3, 6, 9, 9), comment = FALSE, include.rownames = FALSE)
+
+```
+
+```{r label = 'accuracy_rf', echo = FALSE, fig.width = 7, fig.height = 4, fig.align = 'center', fig.lp = 'fig:', fig.cap = 'Exactitud de los nueve modelos en función del número de variables consideradas (mtry).'}
+
+par(mfrow = c(1, 3))
+
+plot(rf.train.4[[1]]$results[, 1:2], type = "l", ylim = c(0.50, 0.90),
+     yaxt = "n")
+axis(2, las = 2)
+for (i in 1:9) {
+  lines(rf.train.4[[i]]$results[, 1:2], 
+        type = "l", 
+        col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4")[i], 
+        lwd = 2)
+}
+
+legend(x = "topleft", legend = c("mN", "bN", "cN", "mSC", "bSC", "cSC", "mBC", "bBC", "cBC"), lwd = 3, col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"),
+       bty = "n", ncol = 3, cex = 0.7)
+
+plot(rf.train.3[[1]]$results[, 1:2], type = "l", ylim = c(0.50, 0.90),
+     yaxt = "n")
+axis(2, las = 2)
+for (i in 1:9) {
+  lines(rf.train.3[[i]]$results[, 1:2], 
+        type = "l", 
+        col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4")[i], 
+        lwd = 2)
+}
+
+legend(x = "topleft", legend = c("mN", "bN", "cN", "mSC", "bSC", "cSC", "mBC", "bBC", "cBC"), lwd = 3, col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"),
+       bty = "n", ncol = 3, cex = 0.7)
+
+
+plot(rf.train.2[[1]]$results[, 1:2], type = "l", ylim = c(0.50, 0.90),
+     yaxt = "n")
+axis(2, las = 2)
+for (i in 1:9) {
+  lines(rf.train.2[[i]]$results[, 1:2], 
+        type = "l", 
+        col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4")[i], 
+        lwd = 2)
+}
+
+legend(x = "topleft", legend = c("mN", "bN", "cN", "mSC", "bSC", "cSC", "mBC", "bBC", "cBC"), lwd = 3, col = c("darkorange1", "darkorange3", "darkorange4",
+                "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"),
+       bty = "n", ncol = 3, cex = 0.7)
+
+```
+
+
+
+
+```{r label = 'rf_boxplot_4', echo = FALSE, fig.width = 6, fig.height = 4, fig.lp = 'fig:', fig.align = 'center', fig.cap = 'Gráficos boxplot con la distribución de las exactitudes obtenidas para cada valor de mtry en función de la técnica de imputación y el procesado de los datos. NT: No transformados, SC: Escalado y Centrado, BC: BoxCox.'}
+
+rf.train <- rf.train.4
+
+AUX <- rbind(
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "NULL",
+             rf.train[[1]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "NULL",
+             rf.train[[2]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "NULL",
+             rf.train[[3]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "scale, center",
+             rf.train[[4]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "scale, center",
+             rf.train[[5]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "scale, center",
+             rf.train[[6]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "BoxCox",
+             rf.train[[7]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "BoxCox",
+             rf.train[[8]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "BoxCox",
+             rf.train[[9]]$results[, 1:2])
+)
+
+aux <- boxplot(Accuracy ~ preProcess + imputation, data = AUX,
+               xaxt = "n", yaxt = "n",
+               ylab = "Accuracy",
+               col = c("darkorange1", "darkorange3", "darkorange4",
+                       "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                       "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"))
+mtext(line = 0.5, at = 2, text = "Mínimo", cex = 1.2)
+mtext(line = 0.5, at = 5, text = "Beta", cex = 1.2)
+mtext(line = 0.5, at = 8, text = "Correlación", cex = 1.2)
+
+axis(2, las = 2)
+axis(1, at = 1:9, labels = rep(c("NT", "SC", "BC"), 3), las = 1)
+
+```
+
+
+```{r label = 'rf_boxplot_3', echo = FALSE, fig.width = 6, fig.height = 4, fig.lp = 'fig:', fig.align = 'center', fig.cap = 'Gráficos boxplot con la distribución de las exactitudes obtenidas para cada valor de mtry en función de la técnica de imputación y el procesado de los datos. NT: No transformados, SC: Escalado y Centrado, BC: BoxCox.'}
+
+rf.train <- rf.train.3
+
+AUX <- rbind(
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "NULL",
+             rf.train[[1]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "NULL",
+             rf.train[[2]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "NULL",
+             rf.train[[3]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "scale, center",
+             rf.train[[4]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "scale, center",
+             rf.train[[5]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "scale, center",
+             rf.train[[6]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "BoxCox",
+             rf.train[[7]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "BoxCox",
+             rf.train[[8]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "BoxCox",
+             rf.train[[9]]$results[, 1:2])
+)
+
+aux <- boxplot(Accuracy ~ preProcess + imputation, data = AUX,
+               xaxt = "n", yaxt = "n",
+               ylab = "Accuracy",
+               col = c("darkorange1", "darkorange3", "darkorange4",
+                       "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                       "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"))
+mtext(line = 0.5, at = 2, text = "Mínimo", cex = 1.2)
+mtext(line = 0.5, at = 5, text = "Beta", cex = 1.2)
+mtext(line = 0.5, at = 8, text = "Correlación", cex = 1.2)
+
+axis(2, las = 2)
+axis(1, at = 1:9, labels = rep(c("NT", "SC", "BC"), 3), las = 1)
+
+```
+
+
+```{r label = 'rf_boxplot_2', echo = FALSE, fig.width = 6, fig.height = 4, fig.lp = 'fig:', fig.align = 'center', fig.cap = 'Gráficos boxplot con la distribución de las exactitudes obtenidas para cada valor de mtry en función de la técnica de imputación y el procesado de los datos. NT: No transformados, SC: Escalado y Centrado, BC: BoxCox.'}
+
+rf.train <- rf.train.2
+
+AUX <- rbind(
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "NULL",
+             rf.train[[1]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "NULL",
+             rf.train[[2]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "NULL",
+             rf.train[[3]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "scale, center",
+             rf.train[[4]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "scale, center",
+             rf.train[[5]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "scale, center",
+             rf.train[[6]]$results[, 1:2]),  
+  data.frame("imputation" = "mínimo",
+             "preProcess" = "BoxCox",
+             rf.train[[7]]$results[, 1:2]),
+  data.frame("imputation" = "beta",
+             "preProcess" = "BoxCox",
+             rf.train[[8]]$results[, 1:2]),
+  data.frame("imputation" = "correlación",
+             "preProcess" = "BoxCox",
+             rf.train[[9]]$results[, 1:2])
+)
+
+aux <- boxplot(Accuracy ~ preProcess + imputation, data = AUX,
+               xaxt = "n", yaxt = "n",
+               ylab = "Accuracy",
+               col = c("darkorange1", "darkorange3", "darkorange4",
+                       "lightskyblue1", "lightskyblue3", "lightskyblue4",
+                       "darkolivegreen1", "darkolivegreen3", "darkolivegreen4"))
+mtext(line = 0.5, at = 2, text = "Mínimo", cex = 1.2)
+mtext(line = 0.5, at = 5, text = "Beta", cex = 1.2)
+mtext(line = 0.5, at = 8, text = "Correlación", cex = 1.2)
+
+axis(2, las = 2)
+axis(1, at = 1:9, labels = rep(c("NT", "SC", "BC"), 3), las = 1)
+
+```
+
+
+```{r, echo = FALSE}
+load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+```
+
+```{r label = 'rf_proximity_4', echo = FALSE, fig.align = 'center', fig.lp = 'fig:', fig.scap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los cuatro grados de la enfermedad.', fig.cap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los cuatro grados de la enfermedad. Se presentan las dos primeras dimensiones.', fig.width = 6, fig.height = 4}
+
+ann_colors <- list("Grado 1" = brewer.pal(n = 4, name = "Set1")[1], 
+                   "Grado 2" = brewer.pal(n = 4, name = "Set1")[2], 
+                   "Grado 3" = brewer.pal(n = 4, name = "Set1")[3], 
+                   "Grado 4" = brewer.pal(n = 4, name = "Set1")[4])
+
+AUX <- cmdscale(1 - rf.train.4[[1]]$finalModel$proximity, k = 2)[, 1:2]
+  
+plot(AUX[, 1], AUX[, 2],
+     pch = 16, col = as.vector(unlist(ann_colors[ACM.imp1$DIAGNO])),
+     cex = 1.5,
+     yaxt = "n",
+     main = "Coordenadas escaladas\nde la matriz de proximidad",
+     xlab = "Dimensión 1", ylab = "Dimensión 2")
+axis(2, las = 2)
+abline(v = pretty(AUX[, 1]), lty = 2, col = gray(0.6))
+abline(h = pretty(AUX[, 2]), lty = 2, col = gray(0.6))
+
+
+legend(x = "topright", legend = c("Grado 1", "Grado 2", "Grado 3", "Grado 4"),
+       pch = 16, col = brewer.pal(n = 4, name = "Set1"), bty = "n", cex = 0.8)  
+
+```
+
+```{r label = 'rf_proximity_3', echo = FALSE, fig.align = 'center', fig.lp = 'fig:', fig.scap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los tres grupos de la enfermedad.', fig.cap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los tres grupos de la enfermedad. Se presentan las dos primeras dimensiones.', fig.width = 6, fig.height = 4}
+AUX <- cmdscale(1 - rf.train.3[[1]]$finalModel$proximity, k = 2)[, 1:2]
+
+ann_colors <- list("Grado 1" = brewer.pal(n = 4, name = "Set1")[1], 
+                   "Grado 2" = brewer.pal(n = 4, name = "Set1")[2], 
+                   "Grado 3" = brewer.pal(n = 4, name = "Set1")[2], 
+                   "Grado 4" = brewer.pal(n = 4, name = "Set1")[4])
+
+plot(AUX[, 1], AUX[, 2],
+     pch = 16, col = as.vector(unlist(ann_colors[ACM.imp1$DIAGNO])),
+     cex = 1.5,
+     yaxt = "n",
+     main = "Coordenadas escaladas\nde la matriz de proximidad",
+     xlab = "Dimensión 1", ylab = "Dimensión 2")
+axis(2, las = 2)
+abline(v = pretty(AUX[, 1]), lty = 2, col = gray(0.6))
+abline(h = pretty(AUX[, 2]), lty = 2, col = gray(0.6))
+
+
+legend(x = "topright", legend = c("Grupo 1 (Grado 1)", "Grupo 2 (Grados 2 y 3)", "Grupo 3 (Grado 4)"),
+       pch = 16, col = brewer.pal(n = 4, name = "Set1")[c(1,2,4)], bty = "n", cex = 0.8)
+
+```
+
+```{r label = 'rf_proximity_2', echo = FALSE, fig.align = 'center', fig.lp = 'fig:', fig.scap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los dos grupos.', fig.cap = 'Coordenadas escaladas de la matriz de proximidad del modelo para clasificar los dos grupos de la enfermedad. Se presentan las dos primeras dimensiones.', fig.width = 6, fig.height = 4}
+AUX <- cmdscale(1 - rf.train.2[[1]]$finalModel$proximity, k = 2)[, 1:2]
+
+ann_colors <- list("Grado 1" = brewer.pal(n = 4, name = "Set1")[1], 
+                   "Grado 2" = brewer.pal(n = 4, name = "Set1")[1], 
+                   "Grado 3" = brewer.pal(n = 4, name = "Set1")[1], 
+                   "Grado 4" = brewer.pal(n = 4, name = "Set1")[4])
+
+plot(AUX[, 1], AUX[, 2],
+     pch = 16, col = as.vector(unlist(ann_colors[ACM.imp1$DIAGNO])),
+     cex = 1.5,
+     yaxt = "n",
+     main = "Coordenadas escaladas\nde la matriz de proximidad",
+     xlab = "Dimensión 1", ylab = "Dimensión 2")
+axis(2, las = 2)
+abline(v = pretty(AUX[, 1]), lty = 2, col = gray(0.6))
+abline(h = pretty(AUX[, 2]), lty = 2, col = gray(0.6))
+
+
+legend(x = "topright", legend = c("Grupo 1 (Grados 1, 2 y 3)", "Grupo 2 (Grado 4)"),
+       pch = 16, col = brewer.pal(n = 4, name = "Set1")[c(1,4)], bty = "n", cex = 0.8)
+
+```
+
+### Variables más importantes
+
+Utilizamos la función `varImp` de la librería `caret`. Esta función es un método para calcular la importancia de las variables de los modelos generados por la función `train`.
+
+```{r label = 'varimp_rf_4', echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = 'Las diez variables más importantes para la separación de los cuatro grados de la enfermedad', fig.pos = 'h', fig.lp = 'fig:'}
+a <- varImp(rf.train.4[[1]], useModel = FALSE)
+plot(a, top = 10, xlab = "Variables más importantes")
+```
+
+```{r label = 'varimp_rf_3', echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = 'Las diez variables más importantes para la separación de los cuatro grados de la enfermedad', fig.pos = 'h', fig.lp = 'fig:'}
+a <- varImp(rf.train.3[[1]], useModel = FALSE)
+plot(a, top = 10, xlab = "Variables más importantes")
+```
+
+```{r label = 'varimp_rf_2', echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = 'Las diez variables más importantes para la separación de los cuatro grados de la enfermedad', fig.pos = 'h', fig.lp = 'fig:'}
+a <- varImp(rf.train.2[[1]], useModel = FALSE)
+plot(a, top = 10, xlab = "Variables más importantes")
+```

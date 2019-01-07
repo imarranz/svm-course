@@ -1,0 +1,94 @@
+\clearpage
+\newpage
+
+## Conclusiones
+
+En la tabla \ref{tab:resumen_accuracy} se muestran las exactitudes obtenidas para cada método en función del procesamiento aplicado y método de imputación de valores perdidos utilizado.
+
+\begin{table}[htbp]
+\centering
+\scalebox{0.9}{
+\begin{tabular}{lllccc}
+\hline\hline
+ &  &  & \multicolumn{ 3}{c}{Número de grupos a clasificar} \\ 
+ \cline{4-6}
+Algoritmo & Transformación & Imputación & 4 Grupos & 3 Grupos & 2 Grupos \\ 
+\hline
+ &  & mínimo & 0.502 & 0.555 & 0.618 \\ 
+knn & Centrado y escalado & beta & 0.506 & 0.529 & 0.627 \\ 
+ &  & correlación & 0.525 & 0.551 & 0.629 \\ 
+ \hline
+ &  & mínimo &  0.489  &  0.563  &  0.699  \\ 
+SVM (linear) & Sin procesamiento & beta &  0.467  &  0.541  &  0.714  \\ 
+ &  & correlación &  0.532  &  0.559  &  0.707  \\ 
+ \hline
+ &  &  mínimo  &  0.663  &  0.653  &  0.810  \\ 
+ & Sin procesamiento &  beta  &  0.609  &  0.646  &  0.815  \\ 
+ &  &  correlación  &  0.608  &  0.675  &  0.816  \\ 
+ \cline{2-6}
+ &  &  mínimo  &  0.593  &  0.658  &  0.821  \\ 
+SVM (radial) & Centrado y escalado &  beta  &  0.626  &  0.646  &  0.826  \\ 
+ &  &  correlación  &  0.604  &  0.701  &  0.837  \\ 
+ \cline{2-6}
+ &  &  mínimo  &  0.630  &  0.717  &  0.838  \\ 
+ &  BoxCox  &  beta  &  0.614  &  0.689  &  0.799  \\ 
+ &  &  correlación  &  0.631  &  0.674  &  0.843  \\ 
+ \hline
+ &  &  mínimo  & 0.582 & 0.668 & 0.821 \\ 
+ & Sin procesamiento &  beta  & 0.592 & 0.658 & 0.810 \\ 
+ &  &  correlación  & 0.587 & 0.652 & 0.821 \\ 
+ \cline{2-6}
+ &  &  mínimo  & 0.592 & 0.668 & 0.821 \\ 
+Random Forest & Centrado y escalado &  beta  & 0.587 & 0.663 & 0.826 \\ 
+ &  &  correlación  & 0.598 & 0.658 & 0.810 \\ 
+ \cline{2-6}
+ &  &  mínimo  & 0.598 & 0.668 & 0.815 \\ 
+ &  BoxCox  &  beta  & 0.598 & 0.625 & 0.815 \\ 
+ &  &  correlación  & 0.609 & 0.647 & 0.821 \\ 
+ \hline\hline
+\end{tabular}
+}
+\caption{Exactitud máxima obtenida con todos los métodos y transformaciones aplicados.}
+\label{tab:resumen_accuracy}
+\end{table}
+
+Si nos centramos en la clasificación de los cuatro grupos, claramente el SVM con kernel radial es el que mejores resultados presenta, muy por encima de los resultados obtenidos mediante el knn y el SVM de kernel lineal (incluso para los datos sin procesado previo), obteniendo una exactitud del 66% para la SVM de kernel radial sin procesamiento de datos e imputación de valores perdidos por valor mínimo. Los siguientes mejores resultados, tambień los vuelve a obtener la SVM de kernel radial con un 63% de exactitud, para valores transformados mediante BoxCox e imputación por valor mínimo y correlación.
+
+En la clasificación de tres grupos, la SVM con kernel radial vuelve a ser mejor, y además muestra diferencias según procesado previo, obteniendo los máximos cuando hemos aplicado transformaciones BoxCox en torno al 70% de exactitud.
+
+En la clasificación de dos grupos, vuelve a ser la SVM con kernel radial con transformaciones BoxCox e imputación por correlación la que mayor exactitud tiene, un 84,3%. En vista de estos resultados, la SVM con kernel radial es el método más eficaz para separar los grupos observados, seguida de cerca por clasificador entrenado por el random Forest. La SVM con kernel lineal se comporta de manera similiar al clasificador knn para cuatro y tres grupos, sólo superándolo a la hora de clasificar entre dos grupos.
+<!--
+El análisis de las variables más influyentes de la SVM de kernel radial y el random Forest nos dan los mismos resultados, siendo los metabolitos con identificador **TG54**, **DG10** y **TG52** los más importantes, sobre todo para la separación entre el grado 4 y los demás grados de la enfermedad.
+
+```{r label = 'tab:metabolitos_importantes', echo = FALSE, results = 'asis', eval = FALSE}
+
+MPU <- read.table("/home/ibon/Documentos/Máster/Asignaturas/Modelización Estadística/Asignatura/data/ACM/MultiPlatformUnified.csv", sep = "\t", header = TRUE, dec = ",", quote = "\"")
+
+pos <- c()
+for (var in c("TG54", "DG10", "TG52", "FFA14", "MEPC08", "MEPC14", "MEPC05", "FFA09", "MEPC17", "FFAox07")) {
+  pos <- c(pos, which(MPU$id_metabolite == var))
+}
+
+AUX <- MPU[pos, c(2, 12, 3, 8, 9, 10, 11)]
+
+AUX$Individual.composition..or.probable.ID. <- as.character(AUX$Individual.composition..or.probable.ID.)
+
+AUX$Individual.notation <- as.character(AUX$Individual.notation)
+
+AUX$Individual.composition..or.probable.ID.[AUX$Individual.composition..or.probable.ID.==""] <- AUX$Individual.notation[AUX$Individual.composition..or.probable.ID.==""]
+
+colnames(AUX) <- c("ID", "Nombre simple", "Clase", "Notación individual", "Composición Individual", "HMDB", "Kegg")
+
+xtabla <- xtable(AUX, label = 'tab:metabolitos_importantes', caption = 'Descripción de los metabolitos más importantes obtenidos en los diferentes modelos aplicados. Se muestra la clase, la notación individual, la composición individual, el link HMDB y el link Kegg de aquellos en los que esté disponible.')
+
+print(xtabla, hline.after = c(-1, -1, 0, 10, 10), comment = FALSE, include.rownames = FALSE, sanitize.colnames.function = function(x) {x}, scalebox = 0.85, floating.environment = "sidewaystable")
+
+```
+
+En la tabla \ref{tab:metabolitos_importantes} observamos que los 10 metabolitos más significativos sólo pertenecen a tres clases de metabolitos: *Glycerolipids*, *Fatty acids* y *Glycerophospholipids* cuando hemos analizado hasta ocho familias de metabolitos y algunas con bastantes representantes como los *Amino acids* (20), *Bile acids* (12), *Sphingolipids* (26) y en menor medida los *Sterols* (7).
+
+Otra conclusión muy interesante es que casi todos los metabolitos tienen alguna cadena de ácido graso de 18 carbonos ya sean insaturados o con una o dos insaturaciones.
+-->
+
+Las Máquinas de Vector Soporte dan muy buenos resultados, con probabilidades ligeramente más altas que los algoritmos *knn* y *random forest*. En contra, tienen la dificil interpretación geométrica de sus resultados. 
+

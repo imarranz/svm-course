@@ -1,0 +1,37 @@
+### K Nearest Neighbors
+
+El método k-nn (K nearest neighbors, Fix y Hodges, 1951) es un método de clasificación supervisada, es decir, el aprendizaje está basada en un conjunto de entrenamiento, que sirve para estimar la función de densidad $F(x/C_j)$.
+
+El método K-nn es un método de clasificación no paramétrico, que estima el valor de la función de densidad de probabilidad directamente de la probabilidad a posteriori de que un elemento $x$ pertenezca a la clase $C_j$ a partir de la información proporcionada por el conjunto de prototipos. En este proceso de aprendizaje no se hace ninguna suposición acerca de la distribución de las variables predictoras.
+
+En el reconocimiento de patrones, el algoritmo k-nn es usado como método de clasificación de objetos (elementos) basado en un entrenamiento mediante ejemplos cercanos en el espacio de los elementos.
+
+**Algoritmo**
+
+Los ejemplos de entrenamiento son vectores en un espacio característico multidimensional, cada ejemplo está descrito en términos de $p$ atributos considerando $q$ clases para la clasificación. Los valores de los atributos del $i$-esimo ejemplo (donde $1\le i\le n$) se representan por el vector $p$-dimensional:
+
+$$x_i=(x_{1i}, x_{2i}, ..., x_{pi}) \in X$$
+
+El espacio es particionado en regiones por localizaciones y etiquetas de los ejemplos de entrenamiento. Un punto en el espacio es asignado a la clase $C$ si esta es la clase más frecuente entre los $k$ ejemplos de entrenamiento más cercano, como puede verse en la figura \ref{fig:knn_explained}. Generalmente se usa la distancia euclidiana.
+
+$$d(x_i,x_j)=\sqrt{\sum_{r=1}^p(x_{ri}-x_{rj})^2}$$
+
+La fase de entrenamiento del algoritmo consiste en almacenar los vectores característicos y las etiquetas de las clases de los ejemplos de entrenamiento. En la fase de clasificación, la evaluación del ejemplo (del que no se conoce su clase) es representada por un vector en el espacio característico. Se calcula la distancia entre los vectores almacenados y el nuevo vector, y se seleccionan los $k$ ejemplos más cercanos. El nuevo ejemplo es clasificado con la clase que más se repite en los vectores seleccionados.
+
+\begin{figure}
+\centering
+\includegraphics[]{./figures/datamining/knn.pdf}
+\caption[Ejemplo simplificado de la aplicación del método del vecino más cercano.]{Ejemplo simplificado de la aplicación del método del vecino más cercano. Se seleccionan los {\it k} vecinos más próximos y se asigna la clase más frecuente. En el ejemplo, si consideramos {\it k}=3, tenemos que se asignaría la clase roja, si consideramos {\it k}=12, se asignaría la clase roja, ya que son 9/12 y si consideramos {\it k}=22, se asignaría la clase roja ya que son 12/22. Fuente: OWL Metabolomics.}
+\label{fig:knn_explained}
+\end{figure}
+
+Este método supone que los vecinos más cercanos nos dan la mejor clasificación y esto se hace utilizando todos los atributos; el problema de dicha suposición es que es posible que se tengan muchos atributos irrelevantes que dominen sobre la clasificación: dos atributos relevantes perderían peso entre otros veinte irrelevantes.
+
+Para corregir el posible sesgo se puede asignar un peso a las distancias de cada atributo, dándole así mayor importancia a los atributos más relevantes. Otra posibilidad consiste en tratar de determinar o ajustar los pesos con ejemplos conocidos de entrenamiento. Finalmente, antes de asignar pesos es recomendable identificar y eliminar los atributos que se consideran irrelevantes.
+
+**Elección del parámetro k**
+
+La mejor elección del parámetro k dependerá fundamentalmente de la naturaleza de los datos. Generalmente, grandes valores de k reducen el efecto del ruido de clasificación, pero pueden crear límites entre clases parecidas. Un caso especial de este algoritmo es cuando la predicción de una clase se realiza a partir de la clase más cercana al ejemplo de entrenamiento (cuando k=1). Este algoritmo se llama *Nearest Neighbor Algorithm* (Algoritmo del vecino más cercano).
+
+La capacidad de clasificación de este algoritmo puede ser severamente degradada por la presencia de ruido o características irrelevantes, o si las escalas de las características no son consistentes.
+

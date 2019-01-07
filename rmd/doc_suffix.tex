@@ -1,0 +1,46 @@
+% 
+%
+
+\clearpage
+
+\section{Apéndices}
+
+\lstinputlisting[language = R, caption = {Implementación de la función {\tt ksvm()} en el paquete {\tt kernlab} de {\tt R} para representar las líneas de separación de clasificación.}, label = cod:kernel_lineal]{./code/kernel_lineal.R}
+
+\lstinputlisting[language = R, caption = {Implementación de la función {\tt ksvm()} en el paquete {\tt kernlab} de {\tt R} para representar las líneas de separación de clasificación.}, label = cod:kernel_cuadratico]{./code/kernel_cuadratico.R}
+
+\lstinputlisting[language = R, caption = {Código para realizar un análisis de componentes principales considerando el dígito que representa cada observación.}, label = cod:pca]{./code/pca.R}
+
+\lstinputlisting[language = R, caption = {Código para construir una máquina de vector soporte con kernel lineal.}, label = cod:modelo_svmlinear2_paso1]{./code/modelo_svmlinear2_paso1.R}
+
+\lstinputlisting[language = R, caption = {Código para construir una máquina de vector soporte con kernel lineal utilizando diferentes argumentos de la función train().}, label = cod:modelo_svmlinear2_paso2]{./code/modelo_svmlinear2_paso2.R}
+
+\lstinputlisting[language = R, caption = {Secuencia de comandos para listar todas las fuentes instaladas en el sistema y generar una imagen de cada dígito (0-9) con cada tipografía. La secuencia de comandos utiliza el paquete extrafont que es específico de Linux, en Windows se debe utilizar la función windowFonts() del paquete grDevices.}, label = cod:extrafont, linerange = {1-17}]{./code/extrafont.R}
+
+%La secuencia de comandos de interfaz de usuario (UI - User Interface) controla el diseño y el aspecto de la aplicación. Se define en una secuencia de comandos en origen denominado \texttt{ui.R}. Aquí está la secuencia de comandos para la aplicación desarrolla en \texttt{Shiny}.
+
+%\lstinputlisting[language = R, caption = {La secuencia de comandos de interfaz de usuario (UI - User Interface) controla el diseño y el aspecto de la aplicación. Se define en una secuencia de comandos en origen denominado \texttt{ui.R}. Aquí está la secuencia de comandos para la aplicación desarrolla en \texttt{Shiny}.}, label = cod:ui]{../app/ui.R}
+
+%La secuencia de comandos \texttt{server.R} contiene las instrucciones que el ordenador necesita para ejecutar la aplicación. Esta es la secuencia de comandos para la aplicación desarrollada en \texttt{Shiny}.
+
+%\lstinputlisting[language = R, caption = {La secuencia de comandos \texttt{server.R} contiene las instrucciones que el ordenador necesita para ejecutar la aplicación. Esta es la secuencia de comandos para la aplicación desarrollada en \texttt{Shiny}.}, label = cod:server]{../app/server.R}
+
+%\subsection{Apéndice 2}\label{apendice2}
+
+%Si consideramos \texttt{R} como un lenguaje de programación, vemos que es un lenguaje de Programación Orientado a Objetos (POO) y es útil aprovecharse de estas características para generar código más ágil y eficaz que trabajando, por ejemplo, con listas u otros objetos de \texttt{R}. También podemos utilizar funciones para crear clases de referencia, como por ejemplo \texttt{SetRefClass}. Además de generar una clase, \texttt{R} nos da la posibilidad de programar métodos específicos para esa clase.
+
+%En el código \ref{cod:class} se muestra la creación en \texttt{R} de la clase \texttt{InfObsModLin}, una clase para trabajar modelos lineales con una única variable independiente, así como diferentes métodos aplicables a esta clase. Estos métodos son:
+
+%\begin{itemize}
+% \item {\bfseries initialize()}: Se inicia una clase con unos valores por defecto.
+% \item {\bfseries new()}: Se crea una clase con los valores pasados como argumento.
+% \item {\bfseries finalize()}: Se imprime en pantalla la clase.
+% \item {\bfseries summary.influence()}: Se imprime en pantalla o devuelve la matriz de influencia calculada con la función \texttt{influence.measures()} de los valores de la clase.
+% \item{\bfseries summary.model()}: Se immprime en pantalla o devuelve un resumen de las características del modelo generado con los datos de la clase. Tiene un argumento, \texttt{loo=FALSE} (por defecto), que nos devuelve el resumen del modelo calculado con todas las observaciones. Si \texttt{loo=TRUE} nos devuelve el resumen de {\itshape n} modelos calculados con {\itshape n-1} observaciones.
+% \item {\bfseries plotdata()}: Se realizan seis gráficos con los valores de influencia de cada observación de la clase. 
+%\end{itemize}
+
+
+%\lstinputlisting[language = R, caption = {Código en \texttt{R} para generar las clase \texttt{InfObsModLin} y diferentes métodos para usar con dicha clase.}, label = cod:class, linerange = {1-178}]{./code/class.R}
+
+

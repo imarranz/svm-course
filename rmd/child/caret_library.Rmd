@@ -1,0 +1,34 @@
+\clearpage
+\newpage
+
+## Librería `caret`
+
+La librería `caret` [@JSSv028i05; @caret2015] tiene varias funciones que tratan de simplificar la construcción de modelos y procesos de evaluación, así como la selección de características y otros parámetros o comparar diferentes modelos. Una de las principales herramientas en el paquete es la función `train`, que se puede utilizar para
+
+
+* Evaluar, mediante remuestreo, el efecto de los parámetros del modelo de ajuste en el rendimiento.
+* Elegir el modelo óptimo a través de estos parámetros.
+* El rendimiento del modelo estimado a partir de un conjunto de entrenamiento.
+
+Más formalmente, el proceso iterativo de la librería `caret` se describe en el algoritmo \ref{alg:algoritmocaret}:
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\REQUIRE Una base de datos y una variable clasificatoria y definición del conjunto de valores de los parámetros del modelo a evaluar.
+\ENSURE Lista de parámetros óptimos de ajuste.
+\FOR {Cada conjunto de parámetros}
+\FOR {Cada iteración del remuestreo}
+\STATE Dejar fuera unas muestras (test data / validación)
+\STATE [Opcional] Pre-procesado de los datos (training data / entrenamiento)
+\STATE Evaluar el modelo en las muestras de entrenamiento
+\STATE Predecir las muestras de validación
+\ENDFOR 
+\STATE Calcular el rendimiento promedio a través de predicciones
+\ENDFOR
+\RETURN Conjunto de parámetros óptimos
+Ajustar el modelo final a todos los datos de entrenamiento utilizando el conjunto de parámetros óptimos
+\end{algorithmic}
+\caption{Proceso iterativo de trabajo de la librería caret}\label{alg:algoritmocaret}
+\end{algorithm}
+
+

@@ -1,0 +1,57 @@
+### Random forest
+
+*Random forest* también conocido en castellano como *Bosques aleatorios* es una combinación de árboles predictores tal que cada árbol depende de un número limitado del total de variables consideradas.
+
+El *random forest* es muy simple de entrenar y ajustar, por lo que es ampliamente utilizado.
+
+**Definición de Random forests**
+
+La idea esencial del algoritmo es promediar muchos modelos aleatorios pero aproximadamente imparciales, y por tanto reducir la variación, como puede verse en la figura \ref{fig:randomforest_explained}. Los árboles son los candidatos ideales para el bagging, dado que ellos pueden registrar estructuras de interacción compleja en los datos, y si crecen suficientemente profundo, tienen relativamente baja parcialidad. Producto de que los árboles son notoriamente aleatorios, ellos se benefician grandemente al promediar.
+
+En la figura \ref{fig:randomforest_flowchart} se muestra el diagrama de flujo de trabajo del algoritmo *random forest* [@Mehrpour2013].
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{./figures/datamining/random_forest_algorithm.pdf}
+\caption{Diagrama de flujo de trabajo del método random forest. Fuente: OWL Metabolomics.}
+\label{fig:randomforest_flowchart}
+\end{figure}
+
+Cada árbol es construido usando el siguiente algoritmo:
+
+1. Sea *N* el número de casos de prueba, *M* es el número de variables en el clasificador.
+2. Sea *m* el número de variables de entrada a ser usado para determinar la decisión en un nodo dado; *m* debe ser mucho menor que *M*.
+3. Elegir un conjunto de entrenamiento para este árbol y usar el resto de los casos de prueba para estimar el error.
+4. Para cada nodo del árbol, elegir aleatoriamente m variables en las cuales basar la decisión. Calcular la mejor partición a partir de las m variables del conjunto de entrenamiento.
+
+Para la predicción un nuevo caso es analizado por el árbol. Luego se le asigna la clasificación del nodo terminal donde termina. Este proceso es repetido para todos los árboles en el ensamblado, y la clasificación que obtenga la mayor cantidad de votos será la predicción.
+
+\begin{figure}
+\centering
+\includegraphics[]{./figures/datamining/randomforest.pdf}
+\caption{Ejemplo simplificado de la aplicación del algoritmo randomforest. Se generan N árboles y se evaluan con una observación. La clases más votada (elegida por más árboles) es la que se toma como la clase pronosticada por el modelo. Fuente: OWL Metabolomics.}
+\label{fig:randomforest_explained}
+\end{figure}
+
+**Características (o rasgos) y Ventajas**
+
+Las ventajas del random forests son:
+
+* Es uno de los algoritmos de aprendizaje más certeros que hay disponible y para un conjunto de datos lo suficientemente grande es capaz de generar un clasificador muy exacto.
+* Corre eficientemente en bases de datos grandes.
+* Puede manejar cientos de variables de entrada sin excluir ninguna.
+* Ofrece estimaciones de las variables más importantes en la clasificación.
+* Tiene un método eficaz para estimar datos perdidos y mantener la exactitud cuando una gran proporción de los datos está perdida.
+* Calcula los prototipos que dan información sobre la relación entre las variables y la clasificación.
+* Calcula las proximidades entre los pares de casos que pueden usarse en los grupos, localizando valores atípicos, o (ascendiendo) dando vistas interesantes de los datos.
+* Ofrece un método experimental para detectar las interacciones de las variables.
+
+**Desventajas**
+
+* Se ha observado que el algoritmo *random forest* sobreajusta en ciertos grupos de datos con tareas de clasificación/regresión ruidosas.
+* A diferencia de los árboles de decisión, la clasificación hecha por *random forest* es difícil de interpretar.
+* Para los datos que incluyen variables categóricas con diferente número de niveles, el random forests muestra un sesgo a favor de los atributos con más niveles. Por consiguiente, la posición que marca la variable no es fiable para este tipo de datos.
+* Si los datos contienen grupos de atributos correlacionados con similar relevancia para el rendimiento, entonces los grupos más pequeños están favorecidos sobre los grupos más grandes.
+
+Nosotros vamos a utilizar la librería `randomForest` [@randomForest2002] que permite clasificar y hacer análisis de regresión basándose en un *bosque* de árboles utilizando entradas aleatorias.
+

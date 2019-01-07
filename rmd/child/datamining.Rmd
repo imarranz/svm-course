@@ -1,0 +1,550 @@
+
+
+```{r label = 'read_csv', echo = FALSE, evaluar = file.info('../../data/ACM/ACM.csv')$mfile}
+ACM <- read.table("../../data/ACM/ACM_Minería_de_Datos.csv", sep = ";", dec = ",", header = TRUE)
+# ACM <- read.table("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/data/ACM/ACM_Minería_de_Datos.csv", sep = ";", dec = ",", header = TRUE)
+
+rownames(ACM) <- paste("id_", sprintf("%03i", 1:nrow(ACM)), sep = "")
+ACM$SAMPLE <- NULL # Borramos la variable SAMPLE
+# Recodificamos la enfermdad en grados y etiquetamos de grado 1 a grado 3 los
+# tres estadios de esteatosis. Etiquetamos como grado 4 a los pacientes con NASH.
+# Si existe alguna dimensión bien explicada en el que se vea una progresión de
+# estos grados de enfermedad, podríamos hablar de marcadores de progresión.
+ACM$DIAGNO <- factor(ACM$DIAGNO, 
+                     levels = c("Grado 1", "Grado 2", "Grado 3", "Grado 4"))
+# Etiquetamos la variable SEXO de una forma un poco más clara, 
+# sobre todo para la representación en los gráficos y tablas.
+ACM$SEXO <- factor(ACM$SEXO, 
+                   levels = c("Mujer", "Hombre"))
+
+```
+
+```{r label = 'read_variable_list', echo = FALSE, evaluar = file.info('../../data/ACM/Variable_List.RData')$mfile}
+# MPU = MultiPlatformUnified
+
+MPU <- read.table("../../data/ACM/MultiPlatformUnified.csv", 
+                  sep = "\t", header = TRUE, quote = "\"", dec = ",")
+
+# MPU <- read.table("/home/ibon/Documentos/Máster/Asignaturas/Modelización Estadística/Asignatura/data/ACM/MultiPlatformUnified.csv", sep = "\t", header = TRUE, dec = ",", quote = "\"")
+
+# style: Guardamos las características para representar cada familia de los metabolitos
+# según un shape (pch) y size (cex) y color (borde e interior).
+style <- MPU[, c("id_metabolite", "pch", "cex", "R", "G", "B", "BR", "BG", "BB")]
+
+# MPU: Sólo nos quedamos con las variables que nos interesan para separar los grupos
+# de los metabolitos. 
+MPU <- MPU[, c("id_metabolite", "Class", 
+                         "Sub.class.A", "Sub.class.B",
+                         "Individual.notation", 
+                         "Simple.name")]
+rownames(MPU) <- MPU$id_metabolite
+
+for(i in 1:ncol(MPU)) {
+  MPU[, i] <- as.character(MPU[, i])
+}
+
+metabolitos.ACM <- colnames(ACM)[-c(1:6)]
+metabolitos.MPU <- MPU$id_metabolite
+
+metabolitos <- intersect(metabolitos.ACM, metabolitos.MPU)
+
+ACM <- cbind(ACM[, 1:6], ACM[, metabolitos])
+MPU <- MPU[metabolitos, ]
+
+```
+
+```{r, echo = FALSE, eval = TRUE}
+
+# Aqui agrupamos diferentes
+
+# Amino acids -------------------------------------------------------------
+
+MPU$CATEGORY <- "Amino acids"
+MPU$MAIN.CLASS <- "Amino acids"
+
+# Non-esterified Fatty Acids ----------------------------------------------
+
+filtro <- MPU$Simple.name == "SFA"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Saturated fatty acids (SFA)"
+
+filtro <- MPU$Simple.name == "MUFA"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Monounsaturated fatty acids (MUFA)"  
+
+filtro <- MPU$Simple.name == "PUFA"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Polyunsaturated fatty acids (PUFA)"  
+
+# Fatty amides ------------------------------------------------------------
+
+filtro <- MPU$Simple.name == "NAE"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Fatty amides"  
+
+filtro <- MPU$Simple.name == "AC"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Fatty esters"  
+
+filtro <- MPU$Simple.name == "FFAox"
+MPU$CATEGORY[filtro] <- "Fatty Acyls"
+MPU$MAIN.CLASS[filtro] <- "Oxidized fatty acids" 
+
+# Glycerolipids -----------------------------------------------------------
+
+filtro <- MPU$Simple.name == "MAG"
+MPU$CATEGORY[filtro] <- "Glycerolipids"
+MPU$MAIN.CLASS[filtro] <- "Monoacylglycerols"  
+
+filtro <- MPU$Simple.name == "DAG"
+MPU$CATEGORY[filtro] <- "Glycerolipids"
+MPU$MAIN.CLASS[filtro] <- "Diacylglycerols"  
+
+filtro <- MPU$Simple.name == "TAG"
+MPU$CATEGORY[filtro] <- "Glycerolipids"
+MPU$MAIN.CLASS[filtro] <- "Triacylglycerols"  
+
+# Sterol Lipids -----------------------------------------------------------
+
+filtro <- MPU$Simple.name == "ChoE"
+MPU$CATEGORY[filtro] <- "Sterol Lipids"
+MPU$MAIN.CLASS[filtro] <- "Sterols" 
+
+filtro <- MPU$Simple.name == "ST"
+MPU$CATEGORY[filtro] <- "Sterol Lipids"
+MPU$MAIN.CLASS[filtro] <- "Steroids" 
+
+filtro <- MPU$Simple.name == "BA"
+MPU$CATEGORY[filtro] <- "Sterol Lipids"
+MPU$MAIN.CLASS[filtro] <- "Bile acids" 
+
+# Glycerophospholipids ----------------------------------------------------
+
+filtro <- MPU$Simple.name == "PC"
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Phosphatidylcholines" 
+
+filtro <- MPU$Simple.name == "LPC"
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Lysophosphatidylcholines" 
+
+filtro <- MPU$Simple.name == "PE"
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Phosphatidylethanolamines" 
+
+filtro <- MPU$Simple.name == "LPE"
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Lysophosphatidylethanolamines" 
+
+filtro <- MPU$Simple.name == "PI"
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Phosphatidylinositols" 
+
+filtro <- MPU$Simple.name %in% c("DAPG","MAPG")
+MPU$CATEGORY[filtro] <- "Glycerophospholipids"
+MPU$MAIN.CLASS[filtro] <- "Glycerophosphoglycerols" 
+
+# Sphingolipids -----------------------------------------------------------
+
+filtro <- MPU$Simple.name == "SM"
+MPU$CATEGORY[filtro] <- "Sphingolipids"
+MPU$MAIN.CLASS[filtro] <- "Phosphosphingolipids"
+
+filtro <- MPU$Simple.name == "Cer"
+MPU$CATEGORY[filtro] <- "Sphingolipids"
+MPU$MAIN.CLASS[filtro] <- "Ceramides"
+
+filtro <- MPU$Simple.name == "CMH"
+MPU$CATEGORY[filtro] <- "Sphingolipids"
+MPU$MAIN.CLASS[filtro] <- "Glycosphingolipids"
+
+filtro <- MPU$Simple.name == "FSB"
+MPU$CATEGORY[filtro] <- "Sphingolipids"
+MPU$MAIN.CLASS[filtro] <- "Sphingoid bases"
+
+
+```
+
+## Introducción
+
+La **Minería de Datos (Data Mining)** es un conjunto de técnicas y procesos de análisis de datos que permite extraer información de bases de datos y Almacenes de Datos mediante la búsqueda automatizada de patrones y relaciones.
+
+Existen varios tipos de modelos de Minería de Datos si atendemos a su finalidad:
+
+* **De verificación**. El usuario solicita que se verifique cierta hipótesis, cuando se le responde puede refinar su pregunta, y así sucesivamente.
+* **De descubrimiento**. Con este método se descubre nueva información que no estaba previamente en el Almacén de Datos (o, en su caso, en las bases de datos). No necesita intervención por parte del usuario. Se buscan patrones en los datos, o bien elementos fuera de la norma.
+* **Predictivo**. Se realizan predicciones sobre el comportamiento futuro de variables a partir de los patrones existentes en los datos. El usuario indica sobre qué variable quiere obtener la predicción.
+
+La Minería de Datos tiene varias fases:
+
+* **Selección y preprocesamiento de los datos**. En esta fase se decide sobre qué datos se va a trabajar, tanto desde el punto de vista físico como lógico. También se depuran los datos. (Este paso no es necesario si se trabaja sobre un Almacén de Datos, porque los datos ya están preparados).
+* **Búsqueda de patrones**. Se analizan los datos para extraer significado e información. El resultado será un informe.
+* **Interpretación y evaluación**. Se interpretan los resultados de la fase anterior.
+
+Este proceso se describe gráficamente en la figura \ref{fig:proceso_mineria_datos}.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=1.0\linewidth]{./figures/datamining/proceso_mineria_datos.pdf}
+\caption[El proceso de la Minería de Datos.]{El proceso de la Minería de Datos y las distintas partes fundamentales que lo componen. Fuente: OWL Metabolomics.}
+\label{fig:proceso_mineria_datos}
+\end{center}
+\end{figure}
+
+En este trabajo voy a aplicar distintas técnicas de Minería de Datos para buscar patrones que me permitan clasificar lo más correctamente posible los `r sprintf("%d", nrow(ACM))` pacientes en los cuatro estados posibles de una enfermedad. Los datos con los que voy a trabajar provienen de un análisis metabolómico en el que se han recogido 4 variables antropomórficas: sexo, edad, peso y altura, el diagnóstico de la enfermedad y el perfil metabolómico de cada sujeto, compuesto por un total de `r sprintf("%d", length(metabolitos))` metabolitos. El estudio del metaboloma (análisis metabólico) es relativamente reciente y su análisis sigue las pautas adquiridas por el análisis genómico, aunque los datos no se adquieren ni se interpretan de la misma manera. 
+
+El campo de la metabolómica, por la gran cantidad de datos recogidos en un estudio, permite aplicar diversas técnicas multivariantes, aunque suele reducirse a Análisis de Componentes Principales y métodos OPLS, centrándose en la separación de los grupos estudiados. En este trabajo, analizaremos los datos de un proyecto real con técnicas de *Data Mining*, evaluaremos su capacidad predictiva y ajustaremos los parámetros para optimizar los algoritmos.
+
+Los metabolitos son los productos intermedios y finales del metabolismo. Un ejemplo de un proceso metabólico podemos verlo en la figura \ref{fig:citric_acid} donde se muestra el catabolismo de los aminoácidos. El término metabolito generalmente se limita a pequeñas moléculas. Los metabolitos tienen diversas funciones, incluido el combustible, la estructura, la señalización, los efectos estimuladores e inhibidores de enzimas, la actividad catalítica de los suyos (por lo general como un cofactor de una enzima), la defensa, y las interacciones con otros organismos (por ejemplo, pigmentos, odorantes y feromonas). El metaboloma forma una gran red de reacciones metabólicas, en las salidas de reacción química se enzimática son insumos a otras reacciones químicas.
+
+Los metabolitos de compuestos químicos, ya sea de forma inherente o inducidos farmacológicamente, se forman como parte del proceso bioquímico natural de degradar y eliminar los compuestos. La velocidad de degradación de un compuesto es un determinante importante de la duración y la intensidad de su acción. Perfiles de metabolitos de compuestos farmacéuticos, el metabolismo de fármacos, es una parte importante del descubrimiento de fármacos, lo que lleva a una comprensión de los efectos secundarios indeseables.
+
+La metabolómica, es una nueva disciplina en el grupo de las ciencias *ómicas*, implica el estudio y caracterización de moléculas pequeñas en diferentes matrices biológicas, tales como fluidos biológicos, tejidos o células. La huella digital metabolito se asemeja a una instantánea de un estado metabólico; comparaciones de diferentes perfiles metabólicos permiten distinguir entre las diferentes etapas fisiológicas de un individuo, o diferentes etapas individuales [@Baker2011; @Spratlin2009; @Nicholson2008; @Goodacre2004].
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.8\linewidth]{./figures/datamining/citric_acid.pdf}
+\caption[Ciclo de ácido cítrico y el catabolismo de aminoácidos proteinogénicos]{Ciclo del ácido cítrico y el catabolismo de aminoácidos proteinogénicos. Los aminoácidos se han clasificado según las capacidades de sus productos para entrar gluconeogeneis: aminoácidos glucogénicos tienen esta capacidad (rojo), aminoácidos cetogénicas no lo hacen (naranja). Estos productos todavía pueden ser utilizados para la cetogénesis o la síntesis de lípidos. Algunos aminoácidos se catabolizados en ambos productos glucogénicos y cetogénicas (púrpura). Ácidos grasos (FA), nicotinamida adenina dinucleótido (NAD+, NADH), flavina adenina dinucleótido (FAD+, FADH2), difosfato de guanosina (PIB), trifosfato de guanosina (GTP), fosfoenolpiruvato (DEP). Fuente: OWl Metabolomics.}
+\label{fig:citric_acid}
+\end{center}
+\end{figure}
+
+\clearpage 
+
+<!--
+[http://www.euro.who.int/en/health-topics/disease-prevention/nutrition/a-healthy-lifestyle/body-mass-index-bmi](http://www.euro.who.int/en/health-topics/disease-prevention/nutrition/a-healthy-lifestyle/body-mass-index-bmi)
+-->
+
+```{r, echo = FALSE}
+# Creamos las variables, pero de momento no la incluimos en el data frame AMC
+# de esta manera, seguimos teniendo controladas las variables suplementarias
+# y las variables con la información de los metabolitos.
+
+# CIMC: Dividimos el IMC en tres categorías: pre-obesidad (también incluiría a 
+# los de peso normal), obesidad y obesidad mórbida.
+
+CIMC <- cut(ACM$IMC, 
+                breaks = c(0, 30, 40, 100), 
+                include.lowest = TRUE, right = FALSE)
+CIMC <- factor(CIMC, 
+                   levels = c("[0,30)","[30,40)","[40,100]"), 
+                   labels = c("pre-obesidad","obesidad","obesidad mórbida"))
+
+# Entonces, la base con la que trabajaremos tendrá las siguientes variables
+# suplementarias: Sexo (SEXO), edad (CEDAD) e IMC (CIMC). El resto serán 
+# las variables que proceden del estudio metabolómico.
+
+ACM <- ACM[, c("SEXO", "EDAD", "IMC", "DIAGNO", metabolitos)]
+
+```
+
+Finalmente, nos quedaremos con cuatro variables que serán suplementarias en el análisis: El *Sexo* (Hombre/Mujer), *Edad* (Las muestras se han separado en cuatro grupos), *IMC* y las cuatro categorías de la evolución de la enfermedad: grado 1 (modo más leve de la enfermedad), grado 2, grado 3 y grado 4 (modo más grave de la enfermedad).
+
+
+## Descripción de los datos
+
+Además del perfil metabólico, se han considerado las siguientes variables: *Sexo* (Hombre/Mujer), *Edad*, *Peso*, *Altura*, *Índice de Masa Corporal*\footnote{El índice de masa corporal (IMC) es una medida de asociación entre la masa y la talla de un individuo e independiente de la edad y del sexo. La variable {\it IMC} se ha categorizado atendiendo a la clasificación de la Organización Mundial de la Salud (ver tabla \ref{tab:oms_imc}). En adultos (mayores de 18 años) el índice de masa corporal es independiente de la edad y del sexo.} y *Diagnóstico* con cuatro estadios de la enfermedad, de más leve (Grado 1) a más severa (Grado 4). 
+
+Los datos proceden de un estudio del metaboloma de `r sprintf("%d", nrow(ACM))` pacientes y `r sprintf("%d", length(metabolitos))` metabolitos. En la tabla \ref{tab:descripcion_de_los_datos} se muestran algunos ejemplos de muestra. Una tabla así, se suele denominar tabla de código condensado, a veces definida como tabla $R$ de tamaño ($n$,$s$), donde $n$ representa el número de individuos y $s$ el número de variables. Esta tabla se lee de la siguiente manera: la primera observación (individuo *id_001*) es una mujer, de 28 años de edad, con un IMC de 47,66 $kg/m^2$ y se encuentra en un estadio de grado 2 en la enfermedad en estudio. 
+
+```{r label = 'tab:descripcion_de_los_datos', echo = FALSE, results = 'asis'}
+X <- ACM[1:15, 1:9]
+X.xtabla <- xtable(X, 
+                   caption = c("Primeras observaciones de los datos analizados.", "Primeras observaciones de los datos analizados."), 
+                   align = 'c|ccccccccc', 
+                   label = 'tab:descripcion_de_los_datos',
+                   digits = c(0,0,0,2,0,4,4,4,4,4))
+
+print(X.xtabla, 
+      hline.after = c(-1, -1, 0, nrow(X), nrow(X)), 
+      include.rownames = TRUE, 
+      comment = FALSE,
+      scalebox = 0.80)
+
+```
+
+### Variables
+
+Describimos brevemente las cuatro variables que vamos a considerar en el estudio junto con las variables del perfil metabolómico. 
+
+#### Sexo
+
+En el estudio hay `r sum(ACM$SEXO=="Hombre")` (`r sprintf("%.3f",sum(ACM$SEXO=="Hombre")/nrow(ACM))`/%) hombres y `r sum(ACM$SEXO == "Mujer")` (`r sprintf("%.3f",sum(ACM$SEXO=="Mujer")/nrow(ACM))`/%) mujeres. No hay observaciones perdidas.
+
+El perfil metabólico de hombres y mujeres difiere, sobre todo en algunos grupos metabólicos, como por ejemplo los esteroides.
+
+```{r label = 'fig:barplot_sexo_diagnostico', echo = FALSE, fig.cap = 'Distribución de hombres y mujeres en cada estadio de la enfermedad.', fig.lp = 'fig:', fig.align = 'center'}
+X <- sweep(table(ACM$SEXO, ACM$DIAGNO), MARGIN = 2, 
+      STATS = apply(table(ACM$SEXO, ACM$DIAGNO), MARGIN = 2, FUN = "sum"),
+      FUN = "/")
+
+barplot(X, col = colours()[c(39,70)], ylim = c(0, 1.3), yaxt = "n")
+axis(2, at = seq(0.0, 1.0, by = 0.2), las = 2)
+legend(x = "top", legend = c("Mujeres", "Hombres"), 
+       col = colours()[c(39,70)], pch = 15, bty = "n", ncol = 2)
+```
+
+```{r, echo = TRUE}
+chisq.test(table(Sexo = ACM$SEXO, Diagnóstico = ACM$DIAGNO))
+```
+
+
+#### Edad
+
+La edad es otro factor que hace variar el perfil metabólico. Por ejemplo, al aumentar la edad disminuye el contenido de algunos esteroides en suero.
+
+```{r label = 'fig:barplot_edad_diagnostico', echo = FALSE, fig.cap = 'Distribución de la edad de los sujetos en cada estadio de la enfermedad.', fig.lp = 'fig:', fig.align = 'center'}
+boxplot(ACM$EDAD ~ ACM$DIAGNO, col = colours()[58], yaxt = "n")
+axis(2, las = 2)
+```
+
+```{r, echo = FALSE}
+Diagnóstico <- ACM$DIAGNO
+Edad <- ACM$EDAD
+xtabla <- xtable(summary(aov(Edad ~ Diagnóstico)), caption = "Tabla ANOVA.", label = "tab:tabla_anova_edad_diagnostico")
+```
+
+En la tabla \ref{tab:tabla_anova_edad_diagnostico} se puede concluir que no hay diferencias en la edad en estos pacientes cuando consideramos el estadio de la enfermedad.
+
+```{r label = 'tab:tabla_anova_edad_diagnostico', echo = FALSE, results = 'asis'}
+print(xtabla, hline.after = c(-1,-1,0,2,2), comment = FALSE)
+```
+
+
+#### Índice de Masa Corporal
+
+Si categorizamos en función de los cortes definidos por la OMS vemos que hay algunas categorías que tienen poca (sólo hay 4 personas con peso normal) o ninguna representación (ningún paciente presenta bajo peso) como podemos ver en la tabla \ref{tab:oms_imc}. En vista de estos resultados, agrupamos diferentes niveles para tener un número alto de observaciones en cada categoría. En la tabla \ref{tab:oms_imc2} podemos ver como quedan las observaciones tras un agrupamiento de clases. 
+
+El Índice de Masa Corporal es otro factor que está relacionado con el perfil metabólico, como por ejemplo los triglicéridos y diglicéridos, asociados positivamente con el Índice de Masa Corporal.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\hline
+\hline
+& IMC ($kg/m^{2}$) & Estado nutricional & N \\
+\hline
+& Por debajo de 18,5 & Bajo peso & 0\\
+& 18,5 - 24,9 & Peso normal & 4\\
+& 25,0 - 29,9 & Pre-obesidad & 25\\
+& 30,0 - 34,9 & Obesidad (Clase I) & 14\\
+& 35,0 - 39,9 & Obesidad (Clase II) & 12\\
+& Por encima de 40,0 & Obesidad (Clase III) & 128\\
+\hline
+\hline
+\end{tabular}
+\caption[Estado nutricional en función del IMC.]{Estado nutricional. El Índice de Masa Corporal (IMC), formalmente llamado Índice de Quetelet, es una medida para indicar el estado nutricional en adultos. Se define como el peso en kilogramos dividido por el cuadrado de la altura en metros ($kg/m^{2}$). Para adultos mayores de 20 años, su IMC estará en alguna de estas categorías.} 
+\label{tab:oms_imc}
+\end{table}
+
+Hay algunas categorías que no tienen muchas observaciones por lo que las agruparemos en tres nuevas categorías: por debajo de 29,9 $kg/m^{2}$, de 30,0 a 39,9 $kg/m^{2}$ y por encima de 40,0 $kg/m^{2}$ tal y como se describe en la tabla \ref{tab:oms_imc2}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+\hline
+\hline
+& IMC ($kg/m^{2}$) & Estado nutricional & N \\
+\hline
+& Por debajo de 29,9 & Peso normal, pre-obesidad & 29\\
+& 30,0 - 39,9 & Obesidad & 26\\
+& Por encima de 40,0 & Obesidad mórbida & 128\\
+\hline
+\hline
+\end{tabular}
+\caption[Estado nutricional en función del IMC agrupado.]{Estado nutricional en función del IMC agrupado.} 
+\label{tab:oms_imc2}
+\end{table}
+
+\clearpage
+
+#### Perfil metabólico
+
+Lo perfiles metabólicos mediante suero fueron obtenidos mediante métodos semicuantitativos [@Barr2010; @Barr2012]. Se utilizó cromatografía líquida de rendimiento de ultra UPLC-MS que se combinó con dos plataformas separadas basadas en el análisis de extractos de metanol y suero de cloroformo/metanol.
+
+\clearpage
+
+#### Diagnóstico
+
+Todos las observaciones tienen un diagnóstico asociado obtenido mediante biopsia que determina el grado de la enfermedad. La finalidad de este trabajo es estudiar si existe algún tipo de relación entre el perfil metabólico y la evolución de la enfermedad. Si encontramos una dimensión en el que la proyección de los grados de la enfermedad sea gradual a partir de metabolitos con contribuciones altas tendremos un perfil asociado a la evolución de la enfermedad.
+
+En la tabla \ref{tab:frecuencia_diagnosticos} se muestra el número de observaciones por cada categoría de diagnóstico posible. Sólo hay 19 sujetos diagnosticados en *Grado 3* siendo el 10,3% del total de la muestra. En el *Grado 4* están diagnosticados 87 sujetos, el 47,3% del total del estudio.
+
+Un posible agrupamiento de los grados de la enfermedad podría ser *Grado 1-3* y *Grado 4*, obteniendo una muestra balanceada, 52,7% y 47,3% respectivamente. Además, esta agrupación tiene sentido biológico, ya que el *Grado 4* es el estadio más avanzado pero también tiene otras complicaciones diferentes a los otros estadios.
+
+```{r label = 'tab:frecuencia_diagnosticos', echo = FALSE, results = 'asis'}
+xtabla <- xtable(t(table(ACM$DIAGNO)), 
+                 caption = "Número de observaciones para cada diagnóstico.", 
+                 label = "tab:frecuencia_diagnosticos")
+
+print(xtabla, hline.after = c(-1, -1, 0, 1, 1), 
+      include.rownames = FALSE, include.colnames = TRUE,
+      comment = FALSE, scalebox = 1.00)
+```
+
+
+```{r, echo = FALSE, eval = FALSE, results = 'hide'}
+# save(ACM, file = "/home/ibon/Escritorio/prueba.Rdata")
+# load(file = "/home/ibon/Escritorio/prueba.Rdata")
+
+tab <- tabular((Diagnóstico = DIAGNO + 1) ~ (n=1) + Format(digits=2)*((Edad = EDAD)+(IMC = IMC))*(mean + sd), data = ACM)
+
+tab <- tabular((Diagnóstico = DIAGNO + 1)*(Sexo = SEXO + 1) ~ (n=1) + Format(digits=2)*((Edad = EDAD)+(IMC = IMC))*(mean + sd), data = ACM)
+
+tab <- tabular(((Diagnóstico = DIAGNO) + Hline() + 1)*(Sexo = SEXO + 1) ~ (n=1), data = ACM)
+
+# latex(tab)
+```
+
+\begin{table}
+\centering
+\begin{tabular}{lccccc}
+\hline\hline
+ &  & \multicolumn{2}{c}{Edad} & \multicolumn{2}{c}{IMC} \\ 
+Diagnóstico  & n & mean & sd & mean & \multicolumn{1}{c}{sd} \\ 
+\hline
+Grado 1  & $\phantom{0}53$ & $45,5$ & $11,8$ & $41,6$ & $19,6$ \\
+Grado 2  & $\phantom{0}25$ & $42,1$ & $11,6$ & $44,6$ & $\phantom{0}9,5$ \\
+Grado 3  & $\phantom{0}19$ & $44,4$ & $14,0$ & $46,7$ & $11,2$ \\
+Grado 4  & $\phantom{0}87$ & $45,7$ & $\phantom{0}9,3$ & $47,5$ & $10,3$ \\
+\hline
+Todos  & $184$ & $45,0$ & $10,9$ & $45,4$ & $13,8$ \\
+\hline \hline
+\end{tabular}
+\caption{Análisis descriptivo de las variables {\it Edad} e {\it IMC} respecto de diagnóstico}
+\end{table}
+
+\hfill
+
+```{r, echo = FALSE, results = 'asis', eval = FALSE}
+# Esto es una prueba para ver si podemos mostrar un ftable 
+# aplicando un xtable. La idea es mostrar el número de casos
+# considerando el sexo, edad, imc y diagnóstico observado.
+
+ACM.AUX <- ACM[, 1:4]
+colnames(ACM.AUX) <- c("Sexo", "Edad", "IMC", "Diagnóstico")
+
+X.tabla <- xtable(format(ftable(ACM.AUX)))
+
+print(X.tabla, hline.after = c(-1, -1, 1, 26, 26), 
+      include.rownames = FALSE, include.colnames = FALSE,
+      comment = FALSE, scalebox = 0.75)
+
+```
+
+\clearpage
+
+## Asignación de valores a observaciones perdidas
+
+Siempre es importante mantener la información de los valores perdidos. En biología, muchas veces, la falta de respuesta a un estímulo puede ser una respuesta en sí misma [@Baraldi2010; @Graham2009; @Hrydziuszko2012]. Pero en nuestro caso, vamos a estudiar los datos con diferentes imputaciones a las observaciones perdidas. En la figura \ref{fig:missing_distribution} podemos ver la distribución del número de observaciones perdidas por variable. Se observa que hay algunas variables con hasta 80 de las 183 observaciones con valores no recogidos.
+
+
+```{r label = 'missing_distribution', echo = FALSE, fig.cap = 'Distribución del número de observaciones perdidas por variable.', fig.lp = 'fig:', fig.align = 'center', fig.width = 5, fig.width = 5}
+x <- apply(ACM, MARGIN = 2, FUN = function(x) {sum(is.na(x))})
+hist(x, breaks = 18, col = colours()[462],
+     yaxt = "n", xlab = "Número de observaciones perdidas", ylab = "",
+     main = "Distribución de las observaciones perdidas")
+axis(2, las = 2)
+```
+
+Sabemos que los datos perdidos vienen dados por estar por debajo del umbral de sensibilidad del UPLC-MS, por eso, técnicas de imputación como el promedio no son correctas. Vamos a considerar tres tipos de asignación:
+
+* Distribución beta(0,1).
+* Asignación del valor mínimo observado entre una constante.
+* Asignación del valor en función de otra variable con la que esté altamente correlacionada.
+
+### Distribución Beta(0.1;1)
+
+Si consideramos la asignación de los valores perdidos mediante una distribución Beta(0.1;1) (valores pequeños, positivos y no nulos) eliminamos el efecto de valores repetidos [@Reinecke2011].
+
+En estadística la distribución beta es una distribución de probabilidad continua con dos parámetros $a$ y $b$ cuya función de densidad para valores $0 \leq x \leq 1$ es
+
+$$f(x) = \dfrac{\Gamma(a+b)}{\Gamma(a)\Gamma(b)}x^{a-1}(1-x)^{b-1}$$
+
+y la media viene dada por
+
+$$E[X]=\dfrac{a}{a+b} = \dfrac{0,1}{0,1+1,0} = \dfrac{0,1}{1,1}$$
+
+
+```{r label = 'fig:beta_distribution', echo = FALSE, fig.cap = 'Distribución Beta de parámetros 0.1 y 1.0.', fig.lp = 'fig:', fig.align = 'center', fig.width = 5, fig.width = 5}
+set.seed(1234)
+plot(density(rbeta(n = 100000, 0.1, 1)), type = "l",
+     xlim = c(0.0, 0.4), lwd = 2, col = "blue2",
+     xlab = "", ylab = "",
+     main = "distribución Beta", yaxt = "n")
+axis(2, las = 2)
+```
+
+### Valor mínimo
+
+La asignación por valor mínimo observado en la variable estudiada es la más simple de las imputaciones posibles. En contra tiene el efecto que produce cuando hay muchos valores perdidos en una variable.
+
+### Correlación
+
+La imputación por correlación simple se basa en encontrar una variable en el propio estudio con una gran correlación con la variable que tiene valores perdidos. La imputación vendrá dada por los valores esperados considerando dicha correlación.
+
+
+```{r, echo = FALSE, eval = FALSE}
+
+ACM.imp1 <- ACM
+ACM.imp2 <- ACM
+ACM.imp3 <- ACM
+
+set.seed(1234)
+for (metabolito in 5:ncol(ACM.imp1)) {
+  ACM.imp1[is.na(ACM.imp1[, metabolito]), metabolito] <- min(ACM.imp1[, metabolito], na.rm = TRUE) / 10
+  ACM.imp2[is.na(ACM.imp2[, metabolito]), metabolito] <- rbeta(sum(is.na(ACM.imp2[, metabolito])), 0.1, 1)
+  
+  
+  max.estimado <- 0
+  max.metabolito <- ""
+  for (j in 5:ncol(ACM)) {
+    if (!any(is.na(ACM[, j])) & 
+        colnames(ACM)[j] != colnames(ACM)[metabolito]) {
+      estimado <- cor.test(
+        log(ACM[, metabolito]), 
+        log(ACM[, j]))$estimate[[1]]
+      estimado <- abs(estimado)
+      if (estimado > max.estimado) {
+        max.estimado <- estimado
+        max.metabolito <- colnames(ACM)[j]
+      }      
+    }
+  }
+  
+  Y <- log(ACM[, metabolito])
+  X <- log(ACM[, max.metabolito])
+  
+  modelo.lm <- lm(Y ~ X)
+  Y.hat <- predict(modelo.lm, newdata = data.frame(X = X))
+  ACM.imp3[is.na(ACM.imp3[, metabolito]), metabolito] <- exp(1)^Y.hat[is.na(ACM[, metabolito])]
+  
+}
+
+save(ACM.imp1, ACM.imp2, ACM.imp3, file = "/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+
+```
+
+
+```{r, echo = FALSE, eval = FALSE}
+par(mfrow = c(1, 3))
+plot(density(as.numeric(as.character(ACM.imp1[is.na(ACM)]))))
+plot(density(as.numeric(as.character(ACM.imp2[is.na(ACM)]))))
+plot(density(as.numeric(as.character(ACM.imp3[is.na(ACM)]))))
+```
+
+## Planteamiento del problema
+
+Las técnicas de minería de datos que vamos a aplicar son:
+
+* K-Nearest Neighbors (Knn)
+* Random Forest
+* Máquinas de Vector Soporte (SVM)
+
+
+La aplicación de estas técnicas tiene como finalidad construir un *perfil metabólico de una enfermedad gradual* descrito mediante variables metabólicas de valor continuo.
+
+
+\clearpage
+\newpage

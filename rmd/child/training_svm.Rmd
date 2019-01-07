@@ -1,0 +1,454 @@
+\clearpage
+\newpage
+
+## Support Vector Machine Learning
+
+Como ya hemos comentado, las máquinas de vector soporte dependen de la función kernel que consideremos. Las más usuales son las funciones kernel lineales y las funciones kernel de base radial [@JSSv015i09]. 
+
+Vamos a entrenar dos máquinas de vector soporte a nuestros datos (consideraremos los tres tipos de imputaciones) con dos funciones kernel: lineal y radial.
+
+### Linear Support Vector Machine
+
+Estimamos la exactitud de una máquina de vector soporte con función kernel lineal. La forma de atacar este problema por parte de la librería `caret` [@JSSv028i05; @caret2015] es evaluando cada punto de la malla generada por los diferentes valores de los parámetros *sigma* ($\sigma$) y *costo* ($c$). Una vez  evaluados todos los paŕametros elegiremos aquél par (*sigma*, *costo*) que hayan maximizado la exactitud de las predicciones. Valoramos la construcción del modelo considerando 5 repeticiones con el 80% del total de la muestra (`trainControl(method = "cv", p = 0.8, number = 5, repeats = 5, search = "grid")`). Para evaluar un modelo de máquinas de vector soporte con kernel lineal, le pasamos a la función `train` el argumento `method = "svmLinear2"` que será evaluada internamente con las funciones del paquete `kernlab` [@kernlab2004].
+
+En metabolómica, es habitual realizar diferentes transformaciones en los datos para conseguir distribuciones normales o distribuciones tipificadas entre otras muchas [@vandenBerg2006]. Vamos a construir las máquinas de vector soporte con tres tipos de procesado a los datos:
+
+* Datos originales, `preProcess = NULL`.
+* Datos escalados y centrados, `preProcess = c("scale", "center")`.
+* Datos transformados según potencias *BoxCox*, `preProcess = "BoxCox"`.
+
+Tendremos entonces nueve máquinas de vector soporte que compararemos para ver cuál es el tipo de transformaciones y qué asignación de valores perdidos es la más conveniente para obtener la máxima exactitud. Este proceso lo repetiremos para intentar clasificar los cuatro tipos de diagnóstico, la agrupación en tres diagnósticos y la agrupación en dos diagnósticos.
+
+```{r, echo = TRUE, eval = FALSE}
+train(form = DIAGNO ~ .,
+      data = DATA,
+      method = "svmLinear2",
+      preProcess = NULL,
+      trControl = trainControl(method = "cv",
+                               p = 0.8, number = 5,
+                               repeats = 5,
+                               search = "grid"),
+      metric = "Accuracy",
+      tuneLength = 20,
+      maximize = TRUE)  
+
+```
+
+```{r label = 'training_svm_kernel_linear', echo = FALSE, eval = FALSE}
+# load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+# load("/home/ibon/Escritorio/DM.Rdata")
+load("../output/imp.Rdata")
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+svm.train.4 <- vector("list", 3)
+svm.train.3 <- vector("list", 3)
+svm.train.2 <- vector("list", 3)
+
+CLASS <- ACM$DIAGNO
+
+# Estimamos los parámetros gamma y cost de la máquina de vector soporte
+# con función kernel lineal. La forma de atacar este problema por parte
+# de la librería caret es evaluando cada punto de la malla generada por 
+# los diferentes valores de los parámetros gamma y cost. Una vez 
+# evaluados todos los paŕametros elegiremos aquél par (gamma, cost) que
+# hayan maximizado la exactitud de las predicciones.
+
+procesado <- list(NULL, c("scale", "center"), "BoxCox")
+
+for (i in 1:3) {
+  DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+  
+  svm.train.4[[i]] <- train(DIAGNO ~ .,
+        data = DATA,
+        method = "svmLinear2",
+        preProcess = NULL,
+        trControl = trainControl(method = "cv",
+                                 p = 0.8, number = 5,
+                                 repeats = 5,
+                                 search = "grid"),
+        metric = "Accuracy",
+        tuneLength = 20,
+        maximize = TRUE)  
+}
+
+# Ahora recodificamos los grados de la enfermedad en tres, grado 1, 
+# grado 2 (unión de los grados 2 y 3 originales) y grado 3 (el grado 4
+# original).
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (i in 1:3) {
+  DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+  
+  svm.train.3[[i]] <- train(DIAGNO ~ .,
+        data = DATA,
+        method = "svmLinear",
+        preProcess = NULL,
+        trControl = trainControl(p = 0.8, number = 50),
+        metric = "Accuracy",
+        tuneLength = 1,
+        maximize = TRUE)  
+}
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (i in 1:3) {
+  DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+  
+  svm.train.2[[i]] <- train(DIAGNO ~ .,
+        data = DATA,
+        method = "svmLinear",
+        preProcess = NULL,
+        trControl = trainControl(p = 0.8, number = 50),
+        metric = "Accuracy",
+        tuneLength = 1,
+        maximize = TRUE)  
+}
+
+save(svm.train.4, svm.train.3, svm.train.2, file = "/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/svm.train.linear.Rdata")
+
+```
+
+En la tabla \ref{tab:svm_lineal_noprocess} se muestra la exactitud promedio obtenida al calcular con un 80% de la muestra y una validación cruzada 5-fold con cinco repeticiones una máquina de vector soporte. No se ha realizado ningún pre-procesamiento de los datos. Observamos que el método de imputación por valores de una distribución beta es la que peores resultados ofrece mientras que el método de imputación por valor mínimo es la que mayor exactitud presenta.
+
+```{r label = 'tab:svm_lineal_noprocess', echo = FALSE, results = 'asis'}
+load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/svm.train.linear.Rdata")
+aux <- matrix(c(svm.train.4[[1]]$results$Accuracy[1],
+                svm.train.4[[2]]$results$Accuracy[1],
+                svm.train.4[[3]]$results$Accuracy[1],
+                svm.train.3[[1]]$results$Accuracy[1],
+                svm.train.3[[2]]$results$Accuracy[1],
+                svm.train.3[[3]]$results$Accuracy[1],
+                svm.train.2[[1]]$results$Accuracy[1],
+                svm.train.2[[2]]$results$Accuracy[1],
+                svm.train.2[[3]]$results$Accuracy[1]), ncol = 3)
+
+colnames(aux) <- c("4 grupos", "3 grupos", "2 grupos")
+rownames(aux) <- c("mínimo", "beta", "correlación")
+xtabla <- xtable(aux, 
+                 caption = "Exactitud obtenida con los modelos de máquina vector soporte considerando el tipo de imputación de valores perdidos y el número de grupos a clasificar.", 
+                 label = "tab:svm_lineal_noprocess", 
+                 digits = 4)
+print(xtabla, hline.after = c(-1, -1, 0, 3, 3), comment = FALSE)
+
+
+```
+
+
+### Radial Support Vector Machine
+
+```{r label = 'training_svm_kernel_radial', echo = FALSE, eval = FALSE}
+# load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+# load("/home/ibon/Escritorio/DM.Rdata")
+load("../output/imp.Rdata")
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+svm.train.4 <- vector("list", 9)
+svm.train.3 <- vector("list", 9)
+svm.train.2 <- vector("list", 9)
+
+CLASS <- ACM$DIAGNO
+
+procesado <- list(NULL, c("scale", "center"), "BoxCox")
+svmGrid <- expand.grid(sigma = round(seq(1e-5, 1e-2, length = 20), 5),
+                       C = 2^seq(from = -2, to = 5, by = 1))
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    svm.train.4[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+          data = DATA,
+          method = "svmRadialSigma",
+          preProcess = procesado[[j]],
+          trControl = trainControl(method = "cv",
+                                   p = 0.8, number = 5,
+                                   repeats = 5,
+                                   search = "grid"),
+          metric = "Accuracy",
+          tuneGrid = svmGrid,
+          maximize = TRUE)  
+  }  
+}
+
+
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    svm.train.3[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+          data = DATA,
+          method = "svmRadialSigma",
+          preProcess = procesado[[j]],
+          trControl = trainControl(method = "cv",
+                                   p = 0.8, number = 5,
+                                   repeats = 5,
+                                   search = "grid"),
+          metric = "Accuracy",
+          tuneGrid = svmGrid,
+          maximize = TRUE)  
+  }  
+}
+
+
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp2$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp3$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+ACM.imp2$DIAGNO <- factor(ACM.imp2$DIAGNO)
+ACM.imp3$DIAGNO <- factor(ACM.imp3$DIAGNO)
+
+ACM.imp <- list(ACM.imp1, ACM.imp2, ACM.imp3)
+
+for (j in 1:3) {
+  for (i in 1:3) {
+    DATA <- as.data.frame(ACM.imp[[i]][, -c(1:3)])
+    
+    svm.train.2[[i + 3*(j-1)]] <- train(DIAGNO ~ .,
+          data = DATA,
+          method = "svmRadialSigma",
+          preProcess = procesado[[j]],
+          trControl = trainControl(method = "cv",
+                                   p = 0.8, number = 5,
+                                   repeats = 5,
+                                   search = "grid"),
+          metric = "Accuracy",
+          tuneGrid = svmGrid,
+          maximize = TRUE)  
+  }  
+}
+
+save(svm.train.4, svm.train.3, svm.train.2, file = "/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/svm.train.radial.Rdata")
+
+```
+
+En la tabla \ref{tab:train_radial_4} se muestra la exactitud máxima promedio obtenida con un 80% de la muestra una máquina de vector soporte. La exactitud máxima obtenida es 0,663 sin realizar ninguna transformación previa y utilizando la técnica de imputación del valor mínimo. En la tabla \ref{tab:train_radial_3} se muestran  los mismos resultados pero habiendo considerado sólo tres grupos a clasificar. En este caso, la exactitud máxima observada es de 0,717 cuando aplicamos transformaciones *BoxCox* en los datos y utilizamos la técnica de imputación del valor mínimo. En la tabla \ref{tab:train_radial_2} se muestran los datos habiendo considerado sólo dos grupos. En este caso, la exactitud máxima observada es de 0,843 cuando aplicamos transformaciones *BoxCox* en los datos y la técnica de imputación por correlación.
+
+En vista de estos resultados, no hay una técnica de imputación de valores perdidos o una transformación que presente resultados significativamente superiores que el resto de técnicas, 
+
+```{r label = 'tab:svm_radial_noprocess', echo = FALSE, results = 'asis'}
+load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/svm.train.radial.Rdata")
+
+salida.4 <- data.frame()
+for (i in 1:9) {
+  aux <- data.frame(
+    preprocess = rep(c("Sin procesado", "Escalado y centrado", "BoxCox"), each = 3)[i],    
+    imputation = rep(c("mínimo", "beta", "correlación"), 3)[i],
+    class = 4,
+    accuracy = max(svm.train.4[[i]]$results$Accuracy),
+    sigma = svm.train.4[[i]]$bestTune[[1]],
+    C = svm.train.4[[i]]$bestTune[[2]]
+  )
+  salida.4 <- rbind(salida.4, aux)
+}
+
+
+salida.3 <- data.frame()
+for (i in 1:9) {
+  aux <- data.frame(
+    preprocess = rep(c("Sin procesado", "Escalado y centrado", "BoxCox"), each = 3)[i],
+    imputation = rep(c("mínimo", "beta", "correlación"), 3)[i],
+    class = 4,
+    accuracy = max(svm.train.3[[i]]$results$Accuracy),
+    sigma = svm.train.3[[i]]$bestTune[[1]],
+    C = svm.train.3[[i]]$bestTune[[2]]
+  )
+  salida.3 <- rbind(salida.3, aux)
+}
+
+salida.2 <- data.frame()
+for (i in 1:9) {
+  aux <- data.frame(
+    preprocess = rep(c("sin procesado", "Escalado y centrado", "BoxCox"), each = 3)[i],
+    imputation = rep(c("mínimo", "beta", "correlación"), 3)[i],
+    class = 4,
+    accuracy = max(svm.train.2[[i]]$results$Accuracy),
+    sigma = svm.train.2[[i]]$bestTune[[1]],
+    C = svm.train.2[[i]]$bestTune[[2]]
+  )
+  salida.2 <- rbind(salida.2, aux)
+}
+
+colnames(salida.4) <- c("Procesado", "Imputación", "Clases", "Exactitud", "sigma", "C")
+colnames(salida.3) <- c("Procesado", "Imputación", "Clases", "Exactitud", "sigma", "C")
+colnames(salida.2) <- c("Procesado", "Imputación", "Clases", "Exactitud", "sigma", "C")
+
+```
+
+```{r label = 'tab:train_radial_4', echo = FALSE, results = 'asis'}
+xtabla <- xtable(salida.4, caption = "Resultados de aplicar la función train del paquete caret para diferentes preprocesado de datos: sin preprocesado de variables, centrado y escalado de variables y BoxCox (transformaciones BoxCox para normalización de los datos), diferente tratamiento de los datos perdidos. Se muestra la exactitud máxima alcanzada así como los parámetros sigma y C para los cuales se alcanza.", digits = c(0,0,0,0,3,4,0), label = 'tab:train_radial_4')
+print(xtabla, hline.after = c(-1, -1, 0, 3, 6, 9, 9), comment = FALSE, include.rownames = FALSE)
+```
+
+```{r label = 'tab:train_radial_3', echo = FALSE, results = 'asis'}
+xtabla <- xtable(salida.3, caption = "Resultados de aplicar la función train del paquete caret para diferentes preprocesado de datos: sin preprocesado de variables, centrado y escalado de variables y BoxCox (transformaciones BoxCox para normalización de los datos), diferente tratamiento de los datos perdidos. Se muestra la exactitud máxima alcanzada así como los parámetros sigma y C para los cuales se alcanza.", digits = c(0,0,0,0,3,4,0), label = 'tab:train_radial_3')
+print(xtabla, hline.after = c(-1, -1, 0, 3, 6, 9, 9), comment = FALSE, include.rownames = FALSE)
+```
+
+```{r label = 'tab:train_radial_2', echo = FALSE, results = 'asis'}
+xtabla <- xtable(salida.2, caption = "Resultados de aplicar la función train del paquete caret para diferentes preprocesado de datos: sin preprocesado de variables, centrado y escalado de variables y BoxCox (transformaciones BoxCox para normalización de los datos), diferente tratamiento de los datos perdidos. Se muestra la exactitud máxima alcanzada así como los parámetros sigma y C para los cuales se alcanza.", digits = c(0,0,0,0,3,4,0), label = 'tab:train_radial_2')
+print(xtabla, hline.after = c(-1, -1, 0, 3, 6, 9, 9), comment = FALSE, include.rownames = FALSE)
+```
+\clearpage
+
+```{r, echo = FALSE, fig.width = 9, fig.height = 12, fig.cap = 'Gráficos de niveles para la exactitud obtendida en función de los parámetros sigma ($\\sigma$) y $C$ para la clasificación de cuatro clases.', fig.pos = 'H', fig.lp = 'fig:', fig.align = 'center', out.width = '95%'}
+print(mlplot(svm.train.4[[1]], main = "Sin procesado; mínimo"), split = c(1,1,3,3), more = TRUE)
+print(mlplot(svm.train.4[[2]], main = "Sin procesado; beta"), split = c(2,1,3,3), more = TRUE)
+print(mlplot(svm.train.4[[3]], main = "Sin procesado; correlación"), split = c(3,1,3,3), more = TRUE)
+print(mlplot(svm.train.4[[4]], main = "Escalado y centrado; mínimo"), split = c(1,2,3,3), more = TRUE)
+print(mlplot(svm.train.4[[5]], main = "Escalado y centrado; beta"), split = c(2,2,3,3), more = TRUE)
+print(mlplot(svm.train.4[[6]], main = "Escalado y centrado; correlación"), split = c(3,2,3,3), more = TRUE)
+print(mlplot(svm.train.4[[7]], main = "BoxCox; mínimo"), split = c(1,3,3,3), more = TRUE)
+print(mlplot(svm.train.4[[8]], main = "BoxCox; beta"), split = c(2,3,3,3), more = TRUE)
+print(mlplot(svm.train.4[[9]], main = "BoxCox: correlación"), split = c(3,3,3,3))
+```
+
+```{r, echo = FALSE, fig.width = 9, fig.height = 12, fig.cap = 'Gráficos de niveles para la exactitud obtendida en función de los parámetros sigma ($\\sigma$) y $C$ para la clasificación de tres clases.', fig.pos = 'H', fig.lp = 'fig:', fig.align = 'center', out.width = '95%'}
+print(mlplot(svm.train.3[[1]], main = "Sin procesado; mínimo"), split = c(1,1,3,3), more = TRUE)
+print(mlplot(svm.train.3[[2]], main = "Sin procesado; beta"), split = c(2,1,3,3), more = TRUE)
+print(mlplot(svm.train.3[[3]], main = "Sin procesado; correlación"), split = c(3,1,3,3), more = TRUE)
+print(mlplot(svm.train.3[[4]], main = "Escalado y centrado; mínimo"), split = c(1,2,3,3), more = TRUE)
+print(mlplot(svm.train.3[[5]], main = "Escalado y centrado; beta"), split = c(2,2,3,3), more = TRUE)
+print(mlplot(svm.train.3[[6]], main = "Escalado y centrado; correlación"), split = c(3,2,3,3), more = TRUE)
+print(mlplot(svm.train.3[[7]], main = "BoxCox; mínimo"), split = c(1,3,3,3), more = TRUE)
+print(mlplot(svm.train.3[[8]], main = "BoxCox; beta"), split = c(2,3,3,3), more = TRUE)
+print(mlplot(svm.train.3[[9]], main = "BoxCox: correlación"), split = c(3,3,3,3))
+```
+
+```{r, echo = FALSE, fig.width = 9, fig.height = 12, fig.cap = 'Gráficos de niveles para la exactitud obtendida en función de los parámetros sigma ($\\sigma$) y $C$ para la clasificación de dos clases.', fig.pos = 'H', fig.lp = 'fig:', fig.align = 'center', out.width = '95%'}
+print(mlplot(svm.train.2[[1]], main = "Sin procesado; mínimo"), split = c(1,1,3,3), more = TRUE)
+print(mlplot(svm.train.2[[2]], main = "Sin procesado; beta"), split = c(2,1,3,3), more = TRUE)
+print(mlplot(svm.train.2[[3]], main = "Sin procesado; correlación"), split = c(3,1,3,3), more = TRUE)
+print(mlplot(svm.train.2[[4]], main = "Escalado y centrado; mínimo"), split = c(1,2,3,3), more = TRUE)
+print(mlplot(svm.train.2[[5]], main = "Escalado y centrado; beta"), split = c(2,2,3,3), more = TRUE)
+print(mlplot(svm.train.2[[6]], main = "Escalado y centrado; correlación"), split = c(3,2,3,3), more = TRUE)
+print(mlplot(svm.train.2[[7]], main = "BoxCox; mínimo"), split = c(1,3,3,3), more = TRUE)
+print(mlplot(svm.train.2[[8]], main = "BoxCox; beta"), split = c(2,3,3,3), more = TRUE)
+print(mlplot(svm.train.2[[9]], main = "BoxCox: correlación"), split = c(3,3,3,3))
+```
+
+### Variables más importantes
+
+La función `train` del paquete `caret` permite calcular la importancia de cada variable para la clasificación. A continuación, presentamos las variables más importantes para la clasificación de cuatro, tres y dos grupos considerando únicamente los modelos construidos sin la realización de transformaciones previas.
+
+En la figura \ref{fig:varimp_svm_4} se muestran las diez variables más importantes para la separación de los cuatro grados de la enfermedad. Observamos que todas ellas tienen mucha importancia para separar el Grado 4 del resto de grupos, sin embargo tienen menos importancia para separar el Grado 1 del resto de grupos. Éste resultado se observa mejor en la figura \ref{fig:boxplot_svm_imp_4g} donde se muestra, mediante gráficos boxplot, el comportamiento de las cuatro variables más importante en función de los cuatro grados de la enfermedad.
+
+
+```{r label = 'varimp_svm_4', echo = FALSE, fig.align = 'center', fig.width = 6, fig.height = 6, fig.cap = 'Las diez variables más importantes para la separación de los cuatro grados de la enfermedad', fig.pos = 'h', fig.lp = 'fig:'}
+a <- varImp(svm.train.4[[1]])
+plot(a, top = 10, xlab = "Variables más importantes")
+```
+
+
+```{r label = 'boxplot_svm_imp_4g', echo = FALSE, fig.width = 6, fig.height = 8, fig.cap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los cuatro grupos tras el análisis SVM. Observamos la progresión que existe entre los grados 1 y 3 y cómo el grado 4 presenta un perfil más diferente.', fig.scap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los cuatro grupos tras el análisis SVM.', fig.pos = 'h', fig.lp = 'fig:', fig.align = 'center'}
+
+load("/home/ibon/Documentos/Máster/Asignaturas/Introducción a la Minería de Datos/Asignatura/output/imp.Rdata")
+
+par(mfrow = c(2, 2), mar = c(4.1, 3.1, 2.1, 0.5))
+boxplot(ACM.imp1$FFAox27 ~ ACM.imp1$DIAGNO, col = brewer.pal(4, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox27", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$TG47 ~ ACM.imp1$DIAGNO, col = brewer.pal(4, name = "Dark2"), lwd = 2, yaxt = "n", main = "TG47", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$FFAox07 ~ ACM.imp1$DIAGNO, col = brewer.pal(4, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox07", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$FFAox03 ~ ACM.imp1$DIAGNO, col = brewer.pal(4, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox03", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+```
+
+```{r, echo = FALSE, fig.width = 6, fig.height = 8, fig.cap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los cuatro grupos tras el análisis SVM. Observamos la progresión que existe entre los grados 1 y 2 y cómo el grado 3 presenta un perfil más diferente.', fig.scap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los tres grupos tras el análisis SVM.', fig.pos = 'h', fig.lp = 'fig:', fig.align = 'center'}
+a <- varImp(svm.train.3[[1]])
+
+CLASS <- ACM$DIAGNO
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 2", "Grado 3")] <- "Grado 2"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 3"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+
+par(mfrow = c(2, 2), mar = c(4.1, 3.1, 2.1, 0.5))
+boxplot(ACM.imp1$FFAox27 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox27", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$MEPC08 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "MEPC08", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$MEPC14 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "MEPC14", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$MEPC11 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "MEPC11", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+```
+
+```{r, echo = FALSE, fig.width = 6, fig.height = 8, fig.cap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los cuatro grupos tras el análisis SVM. Observamos la diferencia entre los Grados 1 y 2.', fig.scap = 'Análisis gráfico de las cuatro variables más importantes para clasificar los dos grupos tras el análisis SVM.', fig.pos = 'h', fig.lp = 'fig:', fig.align = 'center'}
+a <- varImp(svm.train.2[[1]])
+
+CLASS <- ACM$DIAGNO
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 1", "Grado 2", "Grado 3")] <- "Grado 1"
+ACM.imp1$DIAGNO[CLASS%in%c("Grado 4")] <- "Grado 2"
+
+ACM.imp1$DIAGNO <- factor(ACM.imp1$DIAGNO)
+
+par(mfrow = c(2, 2), mar = c(4.1, 3.1, 2.1, 0.5))
+boxplot(ACM.imp1$FFAox27 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox27", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$MEPC14 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "MEPC14", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$FFAox07 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox07", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+boxplot(ACM.imp1$FFAox03 ~ ACM.imp1$DIAGNO, col = brewer.pal(3, name = "Dark2"), lwd = 2, yaxt = "n", main = "FFAox03", outline = FALSE, cex.axis = 0.9)
+axis(2, las = 2)
+```
+
+\clearpage
