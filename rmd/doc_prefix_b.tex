@@ -1,0 +1,103 @@
+%
+% Definimos algunas de las características del formato de texto
+%
+
+\setlength{\parskip}{0.5cm}
+\setlength{\parindent}{0.5cm}
+
+% PORTADA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\thispagestyle{empty}
+\vspace*{2cm}
+\begin{center}
+
+%\resizebox{\textwidth}{0.5cm}{\textcolor{black}{Universidad del País Vasco}}\vspace{1cm} \resizebox{\textwidth}{0.5cm}{\textcolor{black}{Euskal Herriko Unibertsitatea}} \vspace{1.0cm}
+
+\resizebox{\textwidth}{0.5cm}{\textcolor{black}{Master Universitario en Ingeniería Biomédica}}\vspace{0.5cm} \resizebox{\textwidth}{0.5cm}{\textcolor{black}{Master in Biomedical Enginering}} \vspace{1.5cm}
+
+\includegraphics[width=90mm]{figures/Logo_OWL_Metabolomics} \\ \vspace{1.0cm}
+
+\resizebox{0.5\textwidth}{2cm}{\textcolor{black}{\sc OWL Metabolomics}}  \vspace{1.5cm}
+
+\resizebox{\textwidth}{0.5cm}{\textcolor{black}{Máquinas de Vector Soporte con R}} \vspace{1.5cm}
+
+\footnotesize{\textcolor{black} {imartinez(at)owlmetabolomics.com}} \\ \vspace*{0.2cm}
+\footnotesize{\textcolor{black} {github: @imarranz}} \\ \vspace*{0.3cm}
+\footnotesize{\textcolor{black} {calonso(at)owlmetabolomics.com}} \\ \vspace*{0.6cm}
+%\normalsize{\textcolor{black}{\today}} \\ 
+\normalsize{\textcolor{black}{10 de Enero de 2019}} \\
+
+\end{center}
+
+% PÁGINA EN BLANCO - PARA IMPRESIÓN A DOBLE CARA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagestyle{empty}
+\pagecolor{white}
+\textcolor{white}{a}
+
+% IMÁGEN DE LA SEGUNDA HOJA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagestyle{empty}
+\pagecolor{white}
+\vspace*{4cm}
+\begin{center}
+\includegraphics[width=120mm]{figures/howtoliewithstatistics}
+\end{center}
+
+\begin{flushright}
+{\scriptsize {\it The secret language of statistics, so appealing in a fact-minded culture, is employed to sensationalize, inflate, confuse, and oversimplify. Statistical methods and statistical terms are necessary in reporting the mass data of social and economic trends, business conditions, opinion polls, the census. But without writers who use the words with honesty and understanding and readers who know what they mean, the result can only be semantic nonsense. }\\}
+{\scriptsize {\bf How to lie with statistics}, 1954}
+\end{flushright}
+
+% PÁGINA EN BLANCO - PARA IMPRESIÓN A DOBLE CARA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagestyle{empty}
+\pagecolor{white}
+\textcolor{white}{a}
+
+% TABLA DE CONTENIDOS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+% Las páginas con la tabla de contenidos, lista de figuras y lista de tablas 
+% irán en numeración romana: I, II, III, IV, ...
+% 
+
+\newpage
+\pagestyle{plain}
+\pagenumbering{Roman} 
+\setcounter{tocdepth}{5}
+\tableofcontents
+
+% LISTA DE FIGURAS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\listoffigures
+
+% LISTA DE TABLAS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\listoftables
+
+% EMPEZAMOS NUMERACIÓN ARÁBIGA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagenumbering{arabic}
+
+% ESTILO DE ENCABEZADO Y PIE DE PÁGINA %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\pagestyle{fancy}
+
+\renewcommand*{\headrulewidth}{0,4pt}
+\renewcommand*{\footrulewidth}{0,4pt}
+
+\fancyhead[HL]{\MakeUppercase{\scriptsize{\sl{OWL Metabolomics}}}}
+\fancyhead[HC]{}
+\fancyhead[HR]{\MakeUppercase{\scriptsize{\sl{Master Universitario en Ingeniería Biomédica}}}}
+\fancyfoot[FL]{\MakeUppercase{\scriptsize{\sl{Ibon Mart\'inez Arranz / Cristina Alonso}}}}
+\fancyfoot[FC]{}
+\fancyfoot[FR]{\MakeUppercase{\scriptsize{\sl{P\'agina} \thepage{} | \pageref{LastPage} }}}
+\fancyfoot[FR]{\MakeUppercase{\scriptsize{\sl{P\'agina} \thepage{} | 53}}} %Modificar
