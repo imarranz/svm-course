@@ -1,0 +1,18 @@
+Model	method Value	Type	Libraries	Tuning Parameters
+L2 Regularized Linear Support Vector Machines with Class Weights	svmLinearWeights2	Classification	LiblineaR	cost, Loss, weight
+L2 Regularized Support Vector Machine (dual) with Linear Kernel	svmLinear3	Classification, Regression	LiblineaR	cost, Loss
+Least Squares Support Vector Machine	lssvmLinear	Classification	kernlab	tau
+Least Squares Support Vector Machine with Polynomial Kernel	lssvmPoly	Classification	kernlab	degree, scale, tau
+Least Squares Support Vector Machine with Radial Basis Function Kernel	lssvmRadial	Classification	kernlab	sigma, tau
+Linear Support Vector Machines with Class Weights	svmLinearWeights	Classification	e1071	cost, weight
+Support Vector Machines with Boundrange String Kernel	svmBoundrangeString	Classification, Regression	kernlab	length, C
+Support Vector Machines with Class Weights	svmRadialWeights	Classification	kernlab	sigma, C, Weight
+Support Vector Machines with Exponential String Kernel	svmExpoString	Classification, Regression	kernlab	lambda, C
+Support Vector Machines with Linear Kernel	svmLinear	Classification, Regression	kernlab	C
+Support Vector Machines with Linear Kernel	svmLinear2	Classification, Regression	e1071	cost
+Support Vector Machines with Polynomial Kernel	svmPoly	Classification, Regression	kernlab	degree, scale, C
+Support Vector Machines with Radial Basis Function Kernel	svmRadial	Classification, Regression	kernlab	sigma, C
+Support Vector Machines with Radial Basis Function Kernel	svmRadialCost	Classification, Regression	kernlab	C
+Support Vector Machines with Radial Basis Function Kernel	svmRadialSigma	Classification, Regression	kernlab	sigma, C
+Support Vector Machines with Spectrum String Kernel	svmSpectrumString	Classification, Regression	kernlab	length, C
+
