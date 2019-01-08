@@ -19,7 +19,7 @@ output:
     number_sections: true
     includes:
       in_header: header.tex
-      before_body: doc_prefix_b.tex
+      before_body: doc_prefix.tex
       after_body: doc_suffix.tex
   html_document:
     toc: true
