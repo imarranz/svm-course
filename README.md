@@ -125,7 +125,7 @@ función `ksvm()` en el paquete `kernlab` de `R`, haciendo uso de los
 tutoriales de *Jean-Philippe Vert* para representar las líneas de
 separación de clasificación mediante un kernel lineal.
 
-<img src="graphics/svm/kernel_lineal-1.png" alt="Implementación de la función {\tt ksvm()} en el paquete {\tt kernlab} de {\tt R} para representar las líneas de separación de clasificación." width="80%" />
+<img src="rmd/graphics/svm/kernel_lineal-1.png" alt="Implementación de la función {\tt ksvm()} en el paquete {\tt kernlab} de {\tt R} para representar las líneas de separación de clasificación." width="80%" />
 <p class="caption">
 Implementación de la función {ksvm()} en el paquete {kernlab} de {R}
 para representar las líneas de separación de clasificación.
@@ -176,7 +176,7 @@ correctamente las regiones. En la figura se muestra que regiones no
 lineales se pueden separar linealmente después de una transformación
 adecuada.
 
-<img src="graphics/svm/kernel_cuadratico-1.png" alt="Implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones." width="95%" />
+<img src="rmd/graphics/svm/kernel_cuadratico-1.png" alt="Implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones." width="95%" />
 <p class="caption">
 Implementación de una función de núcleo cuadrático bidimensional permite
 al algoritmo SVM encontrar vectores soporte y separar correctamente las
@@ -264,7 +264,7 @@ plot(modelo,
      ylim = c(-1.1, 1.1))
 ```
 
-<img src="graphics/svm/and-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema AND." width="65%" />
+<img src="rmd/graphics/svm/and-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema AND." width="65%" />
 <p class="caption">
 Implementación de una máquina de vector soporte para resolver el
 problema AND.
@@ -296,7 +296,7 @@ plot(modelo,
      ylim = c(-1.1, 1.1))
 ```
 
-<img src="graphics/svm/or-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema OR." width="65%" />
+<img src="rmd/graphics/svm/or-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema OR." width="65%" />
 <p class="caption">
 Implementación de una máquina de vector soporte para resolver el
 problema OR.
@@ -324,7 +324,7 @@ plot(modelo, data = data.xor,
      ylim = c(-1.1, 1.1))
 ```
 
-<img src="graphics/svm/xor-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema XOR." width="65%" />
+<img src="rmd/graphics/svm/xor-1.png" alt="Implementación de una máquina de vector soporte para resolver el problema XOR." width="65%" />
 <p class="caption">
 Implementación de una máquina de vector soporte para resolver el
 problema XOR.
