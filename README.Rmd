@@ -1,0 +1,529 @@
+---
+documentclass: article
+lang: es-ES
+classoption: a4paper
+fontsize: 12pt
+fontfamily: times
+linestretch: 1.25
+geometry:
+  - tmargin = 4cm
+  - bmargin = 4cm
+  - lmargin = 3cm
+  - rmargin = 3cm
+graphics: yes
+keep_md: false
+output: 
+  md_document:
+    variant: markdown_github
+  html_document:
+    toc: true
+    toc_depth: 4
+    toc_float: 
+      collapsed: true
+      smooth_scroll: false
+    theme: "flatly"
+    code_folding: hide
+bibliography: 
+  - ./rmd/bibliography/bibliography_statistics.bib 
+  - ./rmd/bibliography/bibliography_metabolomics.bib 
+  - ./rmd/bibliography/bibliography_r_packages.bib 
+  - ./rmd/bibliography/bibliography.bib 
+csl: ./rmd/csl/journal-of-statistical-computation-and-simulation.csl    
+nocite: |
+  @krzywinskipostd2014,
+  @altmanslr2015,
+  @altman2016a,
+  @altman2016b,
+  @kuehl2001,
+  @pulido2004,
+  @martinezarranz2015,
+  @xie2014,
+  @xie2015,
+  @xie2016package,
+  @armitage2014,
+  @miroslava2013,
+  @fox1997
+params:
+  evaluar_modelos: TRUE
+  salvar_rdata: FALSE
+---
+
+```{r label = 'libreries', echo = FALSE, message = FALSE, warning = FALSE}
+suppressPackageStartupMessages(library("caret"))
+suppressPackageStartupMessages(library("knitr"))
+suppressPackageStartupMessages(library("xtable"))
+suppressPackageStartupMessages(library("lattice"))
+suppressPackageStartupMessages(library("ggplot2"))
+suppressPackageStartupMessages(library("e1071"))
+suppressPackageStartupMessages(library("kernlab")) # svmRadial
+suppressPackageStartupMessages(library("pheatmap"))
+suppressPackageStartupMessages(library("pROC")) # para gráficos varImp
+suppressPackageStartupMessages(library("RColorBrewer"))
+suppressPackageStartupMessages(library("ca"))
+suppressPackageStartupMessages(library("tables"))
+suppressPackageStartupMessages(library("randomForest")) # para gráficos varImp
+```
+
+```{r label = 'knitr_options', echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      dev = c('png', 'pdf'),
+                      dpi = 216,
+                      fig.path = 'rmd/graphics/svm/', 
+                      fig.lp = 'fig:', 
+                      fig.pos = "h",
+                      fig.width = 6,
+                      fig.height = 6,
+                      fig.align = 'center',
+                      out.width = '80%',
+                      echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+
+```{r label = 'functions', echo = FALSE}
+mlplot <- function(svm, main = "") {
+  AUX <- svm$results
+  AUX$C <- log(AUX$C, base = 2)
+  levelplot(Accuracy~C*sigma, data = AUX, 
+            cuts = 20, pretty = TRUE, aspect = "fill",
+            col.regions = colorRampPalette(c("red", "white", "green4")),
+            xlab = expression(paste(log[2], "(C)", sep = "")), 
+            xaxt = "n", 
+            # contour = TRUE, labels = TRUE,
+            main = main, cex.main = 0.7,
+            ylab = expression(paste("sigma (", sigma, ")", sep = "")),
+            colorkey = list(space = "right", 
+                            col = colorRampPalette(c("red", "white", "green4"))))  
+}
+```
+
+# Máquinas de Vector Soporte (SVM, Support Vector Machine)
+
+En el contexto de *Machine Learning*, las Máquinas de Vector Soporte son modelos de aprendizaje supervisado asociados a los algoritmos que analizan datos para su análisis de clasificación y/o regresión.
+
+Dado un conjunto de muestras de entrenamiento, cada una de ellas clasificada en una categoría, el algoritmo de entrenamiento de una SVM construye un modelo que asigna una clase a cada observación. Un modelo SVM es una representación de estas muestras en el espacio de tal manera que las muestras de cada categoría están separadas de forma clara.
+
+## Historia
+
+El algoritmo original de las Máquinas de Vector Soporte fue escrito por *Vladimir N. Vapnik* y *Alexey Ya. Chervonenkis* en 1963. En 1992, *Bernhard E. Boser*, *Isabelle M. Guyon* y *Vladimir N. Vapnik* sugirieron una metodología para crear clasificadores no lineales aplicando el mismo concepto de hiperplanos de margen máximo.
+
+## Motivación
+
+La clasificación de muestras es una tarea común en *Machine learning* en la que dados unos datos en los que cada observación pertenece a alguna clase y la finalidad es decidir a qué clase asignar una nueva observación. En el caso de las SVM, cada observación se considera un vector de *p* dimensiones (tenemos *p* variables) y tratamos de separar cada clase. Si lo hacemos con hiperplano de dimensiones *p-1* estaremos aplicando un clasificador lineal. Hay muchos hiperplanos que podrían clasificar nuestros datos. Podemos razonar y buscar aquel hiperplano que muestra la mayor separación entre clases. Elegimos entonces aquel hiperplano cuya distancia a los puntos más cercanos de cada lado sea máxima. Si tal hiperplano existe se denomina *hiperplano de máximo margen* y el clasificador lineal asociado se define como *clasificador de máximo margen*.
+
+## Definición
+
+Podemos definir más formalmente este hiperplano. Una Máquina de Vector Soporte construye un hiperplano o conjunto de hiperplanos *n*-dimensionales que pueden ser usado para clasificación, regresión u otras tareas. Geométricamente, una buena separación se alcanzará por aquel hiperplano que tenga la mayor distancia entre las observaciones de cada clase en las muestras de entrenamiento.
+
+### kernel
+
+A veces, el problema original puede ser resuelto en un espacio de dimensión finita, pero en otras ocasiones sucede que los conjuntos a discriminar no tienen una separación lineal en ese espacio. Para solventar este inconveniente, el espacio de dimensión finita donde está planteado el problema puede ser transformado a un espacio de dimensión mayor, donde es esperable que la separación entre clases se más fácil de calcular.
+
+El aumentar la dimensión del espacio en el que estamos trabajando implica un coste computacional mayor. Para que este aumento sea razonable las transformaciones a espacios de dimensión mayor se diseñan de tal manera que los productos escalares en estos nuevos espacios puedan ser calculados fácilmente en términos de las variables iniciales. Para ello se utilizan las funciones *kernel* ${\displaystyle k(x,y)}$ seleccionadas específicamente para resolver este problema. Los hiperplanos en una mayor dimensión son definidos como aquellos conjuntos de puntos tales que su producto escalar con un vector en ese espacio es constante. Los vectores que definen los hiperplanos pueden ser elegidos como una combinación lineal con parámetros ${\displaystyle \alpha_{i}}$ de imágenes de los vectores de características ${\displaystyle x_{i}}$. Si elegimos el hiperplano con estas propiedades, los puntos ${\displaystyle x}$ en el espacio de características son llevados hiperplanos que se define por la siguiente relación:
+
+\begin{equation}
+{\displaystyle \textstyle \sum_{i}\alpha_{i}\cdot k(x_{i},x) = \mathrm {constante}}
+\end{equation}
+
+Tenemos que tener en cuenta que si ${\displaystyle k(x,y)}$ se vuelve pequeño a medida que ${\displaystyle y}$ crece más lejos de ${\displaystyle x}$, cada término de la suma mide el grado de cercanía de la prueba Punto ${\displaystyle x}$ al punto de base de datos correspondiente ${\displaystyle x_ {i}}$. De esta manera, la suma de los núcleos anteriores puede usarse para medir la proximidad relativa de cada punto de prueba a los puntos de datos originados en uno u otro de los conjuntos a discriminar. 
+
+#### Construcción de un *kernel*
+
+Como hemos comentado, la función *kernel* nos lleva el espacio de características (donde están nuestros datos) a un nuevo espacio de dimensión mayor de tal manera que sea fácil calcular el producto escalar 
+
+Sea el *kernel* definido como
+
+\begin{equation}
+\Phi (x_1, x_2) = \Phi(x_1^2, x_2^2, \sqrt{2 x_1 x_2} ) = (z_1, z_2, z_3)
+\end{equation}
+
+que lleva un punto $x \in R^2$ a $z \in R^3$. En la figura \ref{fig:kernel_trick} observamos que este kernel separa el interior de la circunferencia con el exterior con un hiperplano en $R^3$, siendo mucho más fácil separar las clases en las que están divididas las observaciones.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.90\linewidth]{./figures/kernel-trick.png}
+\caption{El kernel así definido separa el interior de la circunferencia con el exterior con un hiperplano en $R^3$, siendo mucho más fácil separar las clases en las que están divididas las observaciones.}
+\label{fig:kernel_trick}
+\end{center}
+\end{figure}
+
+\clearpage
+
+<!-- https://www.r-bloggers.com/learning-kernels-svm/ -->
+
+Las Máquinas de Vector Soporte funcionan agrupando los puntos de las características según sus clases. En la figura \ref{fig:kernel_lineal} se generan dos vectores de características bidimensionales $x = \{x_1, x_2\}$ de tal manera que la clase $y = -1$ puntos (triángulos) están bien separados de la clase $y = 1$ (círculos).
+
+El algoritmo encuentra el mayor margen lineal posible que separa estas dos regiones. Los separadores se apoyan sobre los puntos avanzados que están justo en la línea frente a sus respectivas regiones. Estos puntos, marcados como dos triángulos en negrita y un círculo en negrita en la figura \ref{fig:kernel_lineal}, se llaman los *vectores de apoyo* o *vectores soporte*, ya que están apoyando las líneas de separación. De hecho, la tarea de aprendizaje del algoritmo de Máquinas de Vector Soporte consiste en determinar estos puntos vector de soporte y la distancia de margen que separa las regiones. Después del entrenamiento, todos los demás puntos de no apoyo no se usará para futuras predicciones.
+
+En el espacio de características lineales, los vectores soporte se suman a un vector de hipótesis general *h*, 
+
+\begin{equation}
+h = \sum_i c_i x_i
+\end{equation}
+
+De modo que las fronteras de clasificación están dadas por las líneas $hx + b = 1$ y $hx + b = -1$ centradas alrededor de $hx + b = 0$.
+
+El código \ref{cod:kernel_lineal} en el anexo es una modificación de la implementación de la función `ksvm()` en el paquete `kernlab` de `R`, haciendo uso de los tutoriales de *Jean-Philippe Vert* para representar las líneas de separación de clasificación mediante un kernel lineal.
+
+
+```{r label = 'kernel_lineal', echo = FALSE, eval = TRUE, fig.width = 5, fig.height = 5, fig.cap = 'Implementación de la función {\\tt ksvm()} en el paquete {\\tt kernlab} de {\\tt R} para representar las líneas de separación de clasificación.'}
+require('kernlab')
+ 
+kfunction <- function(linear = 0, quadratic = 0)
+{
+  k <- function (x,y)
+ {
+     linear*sum((x)*(y)) + quadratic*sum((x^2)*(y^2))
+  }
+  class(k) <- "kernel"
+  k
+}
+ 
+n <- 25
+a1 <- rnorm(n)
+a2 <- 1 - a1 + 2* runif(n)
+b1 <- rnorm(n)
+b2 <- -1 - b1 - 2*runif(n)
+x <- rbind(matrix(cbind(a1, a2), ncol = 2), matrix(cbind(b1, b2), ncol = 2))
+y <- matrix(c(rep(1, n), rep(-1, n)))
+                       
+svp <- ksvm(x,
+            y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(1, 0),
+            scaled = c())
+
+plot(range(x[, 1]),
+     range(x[, 2]),
+     type = 'n',
+     xlab = expression(X[1]),
+     ylab = expression(X[2]))
+title(main = 'Características separables lineales')
+
+ymat <- ymatrix(svp)
+points(x = x[-SVindex(svp), 1], 
+       y = x[-SVindex(svp), 2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1)) # 1: círculo 2: triángulo
+points(x = x[SVindex(svp), 1], 
+       y = x[SVindex(svp), 2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16)) # 16: círculo cerrado 17: triángulo cerrado
+    
+# Extraemos el vector w y b del modelo
+w <- colSums(coef(svp)[[1]] * x[SVindex(svp), ])
+b <- b(svp)
+    
+# Dibujamos las líneas
+abline(b/w[2], -w[1]/w[2])
+abline((b + 1)/w[2], -w[1]/w[2], col = "gray")
+abline((b - 1)/w[2], -w[1]/w[2], col = "gray")
+
+```
+
+\clearpage
+
+En la figura \ref{fig:kernel_cuadratico} se ilustra un ejemplo en el que las observaciones no están separados . Los puntos de la clase $y = 1$ (círculos) se colocan en una región interior rodeada por puntos de clase $y = -1$ (triángulos). En este ejemplo no hay una sola línea recta (lineal) que pueda separar ambas regiones. Sin embargo es posible encontrar un separador lineal mediante la transformación de los puntos $x = \{x_1, x_2\}$ del espacio de características a un espacio cuadrático de núcleos con puntos dados por las correspondientes coordenadas cuadradas $\{x_1^2, x_2^2 \}$. El código en `R` puede consultarse en el código \ref{cod:kernel_cuadratico} en el anexo.
+
+La técnica de transformar el espacio de características en una medida que permite una separación lineal puede formalizarse en términos de *kernel*. Suponiendo que $\Phi ()$ sea una función de transformación vectorial de coordenadas, un espacio de coordenadas cuadráticas sería $\{\Phi (x_1), \Phi (x_2) \} = \{x_1^2, x_2^2 \}$. La búsqueda de separación de la SVM está actuando ahora en el espacio transformado para encontrar los vectores de soporte que generan la condición:
+
+\begin{equation}
+h \Phi (x) + b = \pm 1
+\end{equation}
+
+Para el vector de hipótesis $h$:
+
+\begin{equation}
+h = \sum_i c_i \Phi \left(x_i\right)
+\end{equation}
+
+Dada por la suma sobre los puntos vectoriales de soporte $x_i$. Poniendo ambas expresiones juntas obtenemos
+
+\begin{equation}
+\sum_i c_i K\left( x_i, x\right) + b = \pm 1
+\end{equation}
+
+Con la función de kernel escalar $K\left(x_i, x\right) = \Phi\left(x_i\right)\cdot \Phi\left(x\right)$. El kernel se compone del producto escalar entre un vector soporte $x_i$ y otro punto vector $x$ de características en el espacio transformado.
+
+En la práctica, el algoritmo SVM puede expresarse completamente en términos de kernels sin tener que especificar realmente la transformación de espacio de entidad. Los núcleos populares son, por ejemplo, potencias superiores del producto escalar lineal (*kernel* polinomial). Otro ejemplo es una probabilidad pesada de distancia entre dos puntos (*kernel* gaussiano).
+
+La implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones. En la figura \ref{fig:kernel_cuadratico} se muestra que regiones no lineales se pueden separar linealmente después de una transformación adecuada.
+
+```{r label = 'kernel_cuadratico', echo = FALSE, eval = TRUE, fig.width = 7, fig.height = 5, fig.cap = 'Implementación de una función de núcleo cuadrático bidimensional permite al algoritmo SVM encontrar vectores soporte y separar correctamente las regiones.', out.width = '95%'}
+
+require('kernlab')
+
+kfunction <- function(linear = 0, quadratic = 0)
+{
+  k <- function (x,y)
+ {
+     linear*sum((x)*(y)) + quadratic*sum((x^2)*(y^2))
+  }
+  class(k) <- "kernel"
+  k
+}
+ 
+n <- 20
+r <- runif(n)
+a <- 2*pi*runif(n)
+a1 <- r*sin(a)
+a2 <- r*cos(a)
+r <- 2 + runif(n)
+a <- 2*pi*runif(n)
+b1 <- r*sin(a)
+b2 <- r*cos(a)
+x <- rbind(matrix(cbind(a1, a2), ncol = 2), matrix(cbind(b1, b2), ncol = 2))
+y <- matrix(c(rep(1, n), rep(-1, n)))
+                           
+svp <- ksvm(x,
+            y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(0, 1),
+            scaled = c())
+
+par(mfrow = c(1, 2))
+plot(range(x[, 1]),
+     range(x[, 2]),
+     type = 'n',
+     xlab = expression(X[1]),
+     ylab = expression(X[2]))
+
+title(main = 'Espacio de características')
+ymat <- ymatrix(svp)
+points(x = x[-SVindex(svp),1], 
+       y = x[-SVindex(svp),2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1))
+points(x = x[SVindex(svp),1], 
+       y = x[SVindex(svp),2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16))
+    
+# Extraemos el vector w y b del modelo
+w2 <- colSums(coef(svp)[[1]] * x[SVindex(svp), ]^2)
+b <- b(svp)
+ 
+x1 <- seq(min(x[, 1]), max(x[, 1]), 0.01)
+x2 <- seq(min(x[, 2]), max(x[, 2]), 0.01)
+ 
+points(-sqrt((b-w2[1]*x2^2)/w2[2]), x2, pch = 16 , cex = .2 )
+points(sqrt((b-w2[1]*x2^2)/w2[2]), x2, pch = 16 , cex = .2 )
+points(x1, sqrt((b-w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 )
+points(x1, -sqrt((b-w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 )
+ 
+points(-sqrt((1+ b-w2[1]*x2^2)/w2[2]) , x2, pch = 16 , cex = .2 , col = "gray")
+points( sqrt((1 + b-w2[1]*x2^2)/w2[2]) , x2,  pch = 16 , cex = .2 , col = "gray")
+points( x1 , sqrt(( 1 + b -w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 , col = "gray")
+points( x1 , -sqrt(( 1 + b -w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 , col = "gray")
+ 
+points(-sqrt((-1+ b-w2[1]*x2^2)/w2[2]) , x2, pch = 16 , cex = .2 , col = "gray")
+points( sqrt((-1 + b-w2[1]*x2^2)/w2[2]) , x2,  pch = 16 , cex = .2 , col = "gray")
+points( x1 , sqrt(( -1 + b -w2[2]*x1^2)/w2[1]), pch = 16 , cex = .2 , col = "gray")
+points( x1 , -sqrt(( -1 + b -w2[2]*x1^2)/w2[1]), pch = 16, cex = .2 , col = "gray")
+ 
+xsq <- x^2
+svp <- ksvm(x = xsq,
+            y = y,
+            type = "C-svc",
+            C = 100, 
+            kernel = kfunction(1, 0),
+            scaled = c())
+ 
+plot(x = range(xsq[, 1]),
+     y = range(xsq[, 2]),
+     type = 'n',
+     xlab = expression(X[1]^2),
+     ylab = expression(X[2]^2))
+
+title(main='Espacio cuadrático')
+ymat <- ymatrix(svp)
+points(x = xsq[-SVindex(svp), 1], 
+       y = xsq[-SVindex(svp), 2], 
+       pch = ifelse(ymat[-SVindex(svp)] < 0, 2, 1))
+points(x = xsq[SVindex(svp), 1], 
+       y = xsq[SVindex(svp), 2], 
+       pch = ifelse(ymat[SVindex(svp)] < 0, 17, 16))
+    
+# Extraemos el vector w y b del modelo
+w <- colSums(coef(svp)[[1]] * xsq[SVindex(svp),])
+b <- b(svp)
+    
+# Dibujamos las líneas
+abline(b/w[2], -w[1]/w[2])
+abline((b + 1)/w[2], -w[1]/w[2], col = "gray")
+abline((b - 1)/w[2], -w[1]/w[2], col = "gray")
+```
+
+#### Ejemplos de funciones *kernel* más utilizadas
+
+*kernel* lineal, el más sencillo de los posibles
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \langle x, x^{\prime}\rangle
+\end{equation}
+
+*kernel* de base radial (RBF, Laplace Radial Basis Function)
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left( e^{-\sigma\cdot ||x - x^{\prime}||}\right)
+\end{equation}
+
+*kernel* de base radial (RBF, Gaussian Radial Basis Function)
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left( e^{-\sigma\cdot ||x - x^{\prime}||^{2}}\right)
+\end{equation}
+
+*kernel* polinomial
+
+\begin{equation}
+k\left(x, x^{\prime}\right) = \left(\beta_1 \langle x, x^{\prime}\rangle + \beta_0\right)^{d}
+\end{equation}
+
+
+
+## Aplicaciones
+
+SVMs pueden ser utilizados para resolver varios problemas del mundo real, como por ejemplo:
+
+* La clasificación de las imágenes se puede realizar usando SVMs. Los resultados experimentales muestran que las SVM logran una precisión de búsqueda significativamente mayor que otros algoritmos de clasificación supervisada.
+
+* Los caracteres escritos a mano se pueden reconocer usando SVM. Estos algoritmos son conocidos como algoritmos [ocr](https://en.wikipedia.org/wiki/Optical_character_recognition). Una aplicación muy conocida de reconocimiento de caracteres son los [captchas](https://en.wikipedia.org/wiki/CAPTCHA).
+
+## SVM lineales
+
+Dado un conjunto *n* de observaciones de entrenamiento de la forma:
+
+\begin{equation}
+({\vec {x}}_{1},y_{1}),\,\ldots ,\,({\vec {x}}_{n},y_{n})
+\end{equation}
+
+Donde ${\displaystyle y_{i}}$ toma los valores -1 o 1, indicando la clase a la que pertenece cada punto ${\displaystyle {\vec {x}}_{i}}$. Cada h ${\displaystyle {\vec {x}}_{i}}$ es un vector de *p* dimensiones. Queremos encontrar el hiperplano de margen máximo que divide el grupo de puntos ${\displaystyle {\vec {x}}_{i}}$ entre los que verifican que ${\displaystyle y_{i} = 1}$ de conjunto de puntos que verifican ${\displaystyle y_{i} = -1}$. Este hiperplano es definido como aquel cuya distancia a los puntos más cercanos ${\displaystyle {\vec {x}}_{i}}$ de cada clase es máxima.
+
+Un hiperplano puede ser descrito como el conjunto de puntos ${\displaystyle {\vec {x}}}$ que satisfacen la siguiente condición:
+
+\begin{equation}
+{\displaystyle {\vec {w}}\cdot {\vec {x}} - b = 0}
+\end{equation}
+
+Donde ${\displaystyle {\vec {w}}}$ es el vector normal (no necesariamente normalizado) al hiperplano. El parámetro ${\displaystyle {\tfrac {b}{\|{\vec {w}}\|}}}$ determina el desplazamiento de la hiperplano desde el origen a lo largo del vector normal ${\displaystyle {\vec {w}}}$.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.90\linewidth]{./figures/maximizar_margen.png}
+\caption{Construcción del hiperplano que maximiza el margen entre las dos clases.}
+\label{fig:maximizar_margen}
+\end{center}
+\end{figure}
+
+\clearpage
+
+## Problemas AND, OR y XOR
+
+
+\begin{table}[]
+\centering
+\begin{tabular}{ccccc}
+\hline\hline
+\multicolumn{2}{c|}{INPUT} & \multicolumn{3}{c}{OUTPUT} \\
+\hline\hline
+A           & B           & A AND B & A OR B & A XOR B \\
+\hline
+-1          & -1          & -1      & -1     & 1       \\
+-1          & 1           & -1      & 1      & -1      \\
+1           & -1          & -1      & 1      & -1      \\
+1           & 1           & -1      & 1      & 1       \\
+\hline\hline
+\end{tabular}
+\caption{Entradas y salidas de los diferentes operadores lógicos.}
+\label{tab:andorxor}
+\end{table}
+
+### Problema AND
+
+AND es un operador lógico cuyo valor de la verdad resulta en cierto sólo si ambas proposiciones son ciertas, y en falso de cualquier otra forma. En la figura \ref{fig:and} vemos cómo la maquina vector soporte de kernel lineal, resuelve el problema usando tres soportes.
+
+```{r label = 'and', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema AND.', out.width = '65%'}
+data.and <- data.frame(x = c(-1, -1, 1, 1), 
+                   y = c(-1, 1, -1, 1),
+                   class = c(-1, -1, -1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.and, 
+               type = "C-svc", 
+               kernel = "vanilladot")
+
+# table(predict(modelo), data.and$class)
+plot(modelo, 
+     data = data.and, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+
+```
+
+### Problema OR
+
+OR es un operador lógico que implementa la disyunción lógica y se comporta de acuerdo a la tabla \ref{tab:andorxor}.
+
+```{r label = 'or', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema OR.', out.width = '65%'}
+data.or <- data.frame(x = c(-1, -1, 1, 1), 
+                       y = c(-1, 1, -1, 1),
+                       class = c(-1, 1, 1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.or, 
+               type = "C-svc", 
+               kernel = "vanilladot")
+
+# table(predict(modelo), data.or$class)
+plot(modelo, 
+     data = data.or, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+```
+
+### Problema XOR
+
+XOR es un operador lógico que implementa la disyunción exclusiva y se comporta de acuerdo a la tabla \ref{tab:andorxor}. En este caso, aún siendo un ejemplo de sólo cuatro observaciones, su solución no es trivial aunque se puede resolver mediante un kernel radial.
+
+```{r label = 'xor', echo = TRUE, eval = TRUE, fig.width = 6, fig.height = 6, fig.cap = 'Implementación de una máquina de vector soporte para resolver el problema XOR.', out.width = '65%'}
+data.xor <- data.frame(x = c(-1, -1, 1, 1), 
+                      y = c(-1, 1, -1, 1),
+                      class = c(1, -1, -1, 1))
+
+modelo <- ksvm(class ~ ., 
+               data = data.xor, 
+               type = "C-svc", 
+               kernel = "rbfdot")
+# table(predict(modelo), data.xor$class)
+plot(modelo, data = data.xor, 
+     xlim = c(-1.1, 1.1), 
+     ylim = c(-1.1, 1.1))
+
+```
+
+\clearpage
+
+## Validación de los modelos SVM
+
+Como todos los modelos supervisado, las SVM dependen de las observaciones de entrenamiento. Si cambian estas observaciones, los parámetros del modelo pueden cambiar. En las SVM se observa ademas que la construcción del hiperplano depende de los vectores soporte, si se modifican los vectores soporte se modifica el hiperplano, aunque el resto de observaciones sean las mismas.
+
+Por este motivo, al generar un modelo SVM se debe analizar su robustez mediante un análisis de validación cruzada. Los análisis de validación nos permite valorar el grado de sobreajuste de nuestro modelo a los datos. Un modelo sobreajustado clasificará muy bien las muestras de entrenamiento, pero su exactitud será muy baja cuando pronostique nuevas observaciones.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.9\linewidth]{./figures/complejidad_modelo.pdf}
+\caption{Evolución del error en función en las muestras de entrenamiento y validación en función de la complejidad del modelo. The Elements of Statistical Learning, Trevor Hastie.}
+\label{fig:complejidad_modelo}
+\end{center}
+\end{figure}
+
+### Validación cruzada *leave-one-out*
+
+La validación *leave-one-out* (validación dejando uno fuera) es una validación muy sencilla pero que computacionalmente puede ser muy costosa. El procedimiento de la validación *leave-one-out* se basa en lo siguiente: Si tenemos *n* observaciones entonces construimos *n* Máquinas de Vector Soporte, $\{SVM_1, SVM_2, \ldots, SVM_n\}$, cada una de ellas con *n-1* muestras, $SVM_i = \{1, 2, \ldots, i-1, i+1, \ldots, n \}$ y aplicamos el modelo sobre la muestra no utilizada en la construcción del modelo.
+
+### Validación cruzada *k-fold*
+
+La validación *k-fold* consiste en separar las muestras en *k* grupos de mismo tamaño. Se construyen entonces *k* Máquinas de Vector Soporte con *k-1* grupos y se aplica el modelo resultante sobre el grupo de muestras no incluidas en el modelo. Observamos que si *k = n* estamos ante la validación *leave-one-out*.
+
+
+# Bibliografía
